@@ -235,3 +235,17 @@ exports.updateSurveyStatus = async (req, res) => {
     return res.status(500).json({ error: 'Failed to update survey status' });
   }
 };
+
+//save survey response
+//author: Aswin
+exports.saveSurveyResponse = async (req, res) => {
+  try {
+    const surveyResponseService = require('../services/surveyResponse');
+    const responseData = req.body;
+    const savedResponse = await surveyResponseService.saveSurveyResponse(responseData);
+    return res.status(201).json({ response: savedResponse });
+  } catch (error) {
+    console.error('Save survey response error:', error);
+    return res.status(500).json({ error: 'Failed to save survey response' });
+  }
+};

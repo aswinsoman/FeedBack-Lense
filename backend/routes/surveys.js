@@ -30,4 +30,8 @@ router.get('/:surveyId/invitations/stats',
   require('../controllers/invitationController').getInvitationStats
 );
 
+//save survey response
+//author: Aswin
+router.post('/respond', surveyController.saveSurveyResponse);
+
 module.exports = router;
