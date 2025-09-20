@@ -8,6 +8,7 @@ class InvitationApp {
     ];
     this.chipEmails = [];
     this.surveys = {}; // add this to prevent undefined errors
+    this.isSending = false; // Add flag to prevent multiple simultaneous calls
     this.init();
   }
 
@@ -22,26 +23,63 @@ class InvitationApp {
   }
 
   setupEventListeners() {
+    // Only setup invitation-specific event listeners if we're on the invitation/create survey page
+    const isInvitationPage = window.location.pathname.includes('invite-participants') || 
+                            document.getElementById('chipsWrapper') || 
+                            document.getElementById('emailInput');
+    
+    if (!isInvitationPage) {
+      console.log("Not on invitation page, skipping invitation event listeners");
+      return;
+    }
+
     const emailInput = document.getElementById("emailInput");
     const sendBtn = document.getElementById("sendBtn");
 
     if (emailInput) {
-      emailInput.addEventListener("keydown", (e) => {
+      // Remove existing listeners first
+      emailInput.removeEventListener("keydown", this.handleKeydown);
+      emailInput.removeEventListener("blur", this.handleBlur);
+      
+      // Add new listeners
+      this.handleKeydown = (e) => {
         if (["Enter", ",", ";", " "].includes(e.key)) {
           e.preventDefault();
           this.addEmailsToChipsFromInput();
         }
-      });
-
-      emailInput.addEventListener("blur", () => {
+      };
+      
+      this.handleBlur = () => {
         if (emailInput.value.trim() !== "") {
           this.addEmailsToChipsFromInput();
         }
-      });
+      };
+      
+      emailInput.addEventListener("keydown", this.handleKeydown);
+      emailInput.addEventListener("blur", this.handleBlur);
     }
 
     if (sendBtn) {
-      sendBtn.addEventListener("click", () => this.addInvitationsFromChips());
+      // Check if this button already has our event listener by checking for a data attribute
+      if (sendBtn.dataset.invitationHandlerAttached) {
+        console.log("Event listener already attached to send button");
+        return;
+      }
+      
+      // Mark that we've attached our event listener
+      sendBtn.dataset.invitationHandlerAttached = "true";
+      
+      // Add new listener with high priority (capture phase)
+      this.handleSendClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation(); // Stop other handlers from firing
+        console.log("Invitation.js: Send button clicked, chipEmails:", this.chipEmails.length, "isSending:", this.isSending);
+        this.addInvitationsFromChips();
+      };
+      
+      // Use capture phase to ensure our handler runs first
+      sendBtn.addEventListener("click", this.handleSendClick, true);
     }
 
     // Optional: search input listener
@@ -116,13 +154,29 @@ class InvitationApp {
 
   // ======== Invitations ======== //
   async addInvitationsFromChips() {
+    console.log("invitation.js: addInvitationsFromChips called - chipEmails:", this.chipEmails.length, "isSending:", this.isSending);
+    
+    // Prevent multiple simultaneous calls
+    if (this.isSending) {
+      console.log("invitation.js: Already sending invitations, ignoring this call");
+      return;
+    }
+
+    // Critical check: Only proceed if we're actually on an invitation page with chip functionality
+    const chipsWrapper = document.getElementById("chipsWrapper");
+    const emailInput = document.getElementById("emailInput");
+    
+    if (!chipsWrapper && !emailInput) {
+      console.log("invitation.js: Not on invitation page, ignoring call");
+      return;
+    }
+
     // Only check for empty chipEmails before sending
-    // Only show error if there are invalid emails, not just empty
     if (!this.chipEmails || this.chipEmails.length === 0) {
-      const input = document.getElementById("emailInput");
-      if (input && input.value.trim() !== "") {
+      console.log("invitation.js: No chip emails found");
+      if (emailInput && emailInput.value.trim() !== "") {
         // Check for invalid email formats in the input
-        const emails = input.value.split(/[\s,;]+/).map(e => e.trim()).filter(e => e.length > 0);
+        const emails = emailInput.value.split(/[\s,;]+/).map(e => e.trim()).filter(e => e.length > 0);
         const invalids = emails.filter(e => !this.validateEmail(e));
         if (invalids.length > 0) {
           this.showToast(
@@ -138,8 +192,12 @@ class InvitationApp {
       return;
     }
 
+    this.isSending = true; // Set flag to prevent multiple calls
+
     // Show a loading/success mode UI when sending invitations
-    const sendBtn = document.getElementById("sendInvitesBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const originalButtonContent = sendBtn ? sendBtn.innerHTML : '';
+    
     if (sendBtn) {
       sendBtn.disabled = true;
       sendBtn.classList.add("loading");
@@ -149,20 +207,24 @@ class InvitationApp {
     const surveyIdElement = document.getElementById('surveyId');
     if (!surveyIdElement) {
       this.showToast("Survey ID not found. Please refresh the page.", "red");
+      this.resetSendingState(sendBtn, originalButtonContent);
       return;
     }
 
     const surveyId = surveyIdElement.getAttribute('data-full-id') || surveyIdElement.textContent;
     console.log('Survey ID:', surveyId);
 
-    let added = 0, skipped = 0; // Move declaration here for scope
+    let added = 0, skipped = 0;
 
     try {
       const result = await window.sendInvitations(surveyId, this.chipEmails);
 
       if (result.success) {
+        // Store emails before clearing to prevent timing issues
+        const sentEmails = [...this.chipEmails];
+        
         // Invitations delivered successfully
-        this.chipEmails.forEach((email) => {
+        sentEmails.forEach((email) => {
           if (!this.invitations.some((inv) => inv.email.toLowerCase() === email.toLowerCase())) {
             this.invitations.push({ email, status: "pending" });
             added++;
@@ -199,6 +261,18 @@ class InvitationApp {
       } else {
         this.showToast("Failed to send invitations. Please try again.", "red");
       }
+    } finally {
+      // Always reset button state and flag
+      this.resetSendingState(sendBtn, originalButtonContent);
+    }
+  }
+
+  resetSendingState(sendBtn, originalButtonContent) {
+    this.isSending = false; // Reset flag
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.classList.remove("loading");
+      sendBtn.innerHTML = originalButtonContent;
     }
   }
 
@@ -528,5 +602,26 @@ window.InvitationApp = InvitationApp;
 
 // Auto-init
 document.addEventListener("DOMContentLoaded", () => {
-  if (!window.invitationApp) window.invitationApp = new InvitationApp();
+  // Only initialize InvitationApp if we're on a page that actually needs it
+  const hasInvitationElements = document.getElementById('chipsWrapper') || 
+                               document.getElementById('emailInput') ||
+                               document.getElementById('invitationList');
+  
+  // Check if we're on an invitation-specific page
+  const isInvitationPage = window.location.pathname.includes('invite') ||
+                          window.location.pathname.includes('invitation') ||
+                          hasInvitationElements;
+  
+  console.log('InvitationApp init check:', {
+    hasElements: hasInvitationElements,
+    isInvitationPage: isInvitationPage,
+    pathname: window.location.pathname
+  });
+  
+  if (isInvitationPage && !window.invitationApp) {
+    console.log('Initializing InvitationApp');
+    window.invitationApp = new InvitationApp();
+  } else {
+    console.log('Skipping InvitationApp initialization - not on invitation page');
+  }
 });
