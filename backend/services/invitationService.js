@@ -2,6 +2,7 @@
 const Invitation = require('../models/Invitation');
 const Survey = require('../models/Survey');
 const User = require('../models/User');
+const activityService = require('./activityService'); // Add at the top if not present
 
 // Send invitations to multiple users
 exports.sendInvitations = async ({ surveyId, creatorId, userEmails }) => {
@@ -81,6 +82,14 @@ exports.sendInvitations = async ({ surveyId, creatorId, userEmails }) => {
           creatorId,
           userId: user._id,
           status: 'sent'
+        });
+
+        // Log activity for invitation sent
+        await activityService.logActivity({
+          userId: user._id,
+          surveyId,
+          type: 'invitation_sent',
+          message: `You were invited to survey "${survey.title}"`
         });
 
         return {
@@ -339,9 +348,13 @@ exports.validateInvitationAccess = async (surveyId, token, userId) => {
 
 // Get invitation statistics for dashboard
 exports.getInvitationStats = async (surveyId) => {
+  // Convert surveyId to ObjectId for aggregation
+  const mongoose = require('mongoose');
+  const objectId = new mongoose.Types.ObjectId(surveyId);
+  
   const stats = await Invitation.aggregate([
-    { $match: { surveyId: surveyId } },
-    {
+    { $match: { surveyId: objectId } },
+    { 
       $group: {
         _id: '$surveyId',
         totalInvitations: { $sum: 1 },

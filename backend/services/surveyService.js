@@ -2,6 +2,7 @@
 const Survey = require('../models/Survey');
 const Invitation = require('../models/Invitation');
 const User = require('../models/User');
+const activityService = require('./activityService'); // Add this at the top
 
 // Validate CSV data structure
 exports.validateCsvData = (csvData) => {
@@ -99,6 +100,14 @@ exports.createSurvey = async ({ title, creatorId, csvData, originalFilename }) =
       rowCount: questions.length
     },
     status: 'active'
+  });
+
+  // Log activity for survey creation
+  await activityService.logActivity({
+    userId: creatorId,
+    surveyId: survey._id,
+    type: 'survey_created',
+    message: `Created survey "${survey.title}"`
   });
 
   // Return survey with creator info

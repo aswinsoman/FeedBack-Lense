@@ -255,30 +255,142 @@ body.grey.lighten-5 {
     display: flex;
     align-items: center;
     gap: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.user-avatar {
-    width: 40px;
-    height: 40px;
+.user-profile:hover {
+    opacity: 0.8;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    min-width: 280px;
+    z-index: 1050;
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.user-dropdown.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-header {
+    padding: 16px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.dropdown-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dropdown-avatar {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     object-fit: cover;
+    border: 2px solid #e1e5e9;
 }
 
-.user-details {
+.dropdown-user-details {
     display: flex;
     flex-direction: column;
+    flex: 1;
 }
 
-.user-name {
-    font-size: 14px;
+.dropdown-user-name {
+    font-size: 16px;
     font-weight: 600;
     color: #1e293b;
     line-height: 1.2;
+    margin-bottom: 2px;
 }
 
-.user-role {
-    font-size: 12px;
+.dropdown-user-email {
+    font-size: 13px;
     color: #64748b;
+    line-height: 1.2;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #e1e5e9;
+}
+
+.dropdown-items {
+    padding: 8px 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: #64748b;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.dropdown-item:hover {
+    background: #f1f5f9;
+    color: #dc3545;
+    text-decoration: none;
+}
+
+.dropdown-item i {
+    width: 16px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.dropdown-item span {
+    flex: 1;
+}
+
+/* User dropdown responsive */
+@media (max-width: 768px) {
+    .user-dropdown {
+        min-width: 250px;
+        right: -10px;
+    }
+    
+    .dropdown-header {
+        padding: 12px 16px;
+    }
+    
+    .dropdown-avatar {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .dropdown-user-name {
+        font-size: 15px;
+    }
+    
+    .dropdown-user-email {
+        font-size: 12px;
+    }
+    
+    .dropdown-item {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
 }
 
 /* Dashboard Content */

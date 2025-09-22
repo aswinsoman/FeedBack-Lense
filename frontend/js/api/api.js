@@ -89,6 +89,17 @@ export function validateToken() {
   }
 }
 
+// Get user profile
+export async function getUserProfile() {
+  try {
+    const { res, data } = await getJSONAuth('/auth/me');
+    return { success: res.ok, data, status: res.status };
+  } catch (error) {
+    console.error('API Error in getUserProfile:', error);
+    return { success: false, error: 'Network error occurred' };
+  }
+}
+
 // Redirect to login if not authenticated
 export function requireAuth() {
   if (!validateToken()) {
@@ -241,6 +252,35 @@ export async function getUserSurveysData(surveyId = null) {
   } catch (error) {
     console.error('API Error in getUserSurveys:', error);
     return { success: false, error: 'Network error occurred' };
+  }
+}
+
+// Add new function to submit survey responses
+export async function submitSurveyResponse(responseData) {
+  try {
+    console.log('Submitting survey response with data:', responseData);
+    const { res, data } = await postJSONAuth('/surveys/respond', responseData);
+    console.log('Survey response API result:', { 
+      status: res.status, 
+      ok: res.ok, 
+      data 
+    });
+    
+    // Return detailed information for debugging
+    return { 
+      success: res.ok, 
+      data, 
+      status: res.status,
+      statusText: res.statusText,
+      error: !res.ok ? (data?.error || 'Unknown error') : null
+    };
+  } catch (error) {
+    console.error('API Error in submitSurveyResponse:', error);
+    return { 
+      success: false, 
+      error: error.message || 'Network error occurred',
+      networkError: true
+    };
   }
 }
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Survey Completed</title>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle fill="#E8F5E9" cx="100" cy="100" r="100"></circle>
+        <circle fill="#4CAF50" opacity="0.2" cx="100" cy="100" r="80"></circle>
+        <g transform="translate(40, 40)" fill-rule="nonzero">
+            <path d="M60,0 C26.863,0 0,26.863 0,60 C0,93.137 26.863,120 60,120 C93.137,120 120,93.137 120,60 C120,26.863 93.137,0 60,0 Z" fill="#4CAF50"></path>
+            <path d="M84.464,36.536 L52.5,68.5 L35.536,51.536 C34.583,50.583 33.042,50.583 32.089,51.536 C31.136,52.489 31.136,54.03 32.089,54.983 L50.776,73.67 C51.253,74.147 51.876,74.385 52.5,74.385 C53.124,74.385 53.747,74.147 54.224,73.67 L87.911,39.983 C88.864,39.03 88.864,37.489 87.911,36.536 C86.958,35.583 85.417,35.583 84.464,36.536 Z" fill="#FFFFFF"></path>
+        </g>
+        <g transform="translate(30, 160)" fill="#4CAF50">
+            <rect x="0" y="0" width="60" height="10" rx="5"></rect>
+            <rect x="70" y="0" width="40" height="10" rx="5"></rect>
+            <rect x="120" y="0" width="20" height="10" rx="5"></rect>
+        </g>
+    </g>
+</svg>

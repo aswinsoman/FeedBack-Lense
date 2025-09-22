@@ -18,7 +18,7 @@ class InvitationApp {
     this.setupEventListeners();
     this.autoApproveDemo();
     this.renderInvitationsList(); // initial render
-    this.renderInvitationsListFromUser();
+    this.loadUserProfile(); // Initialize user profile
   }
 
   setupEventListeners() {
@@ -173,7 +173,6 @@ class InvitationApp {
 
         this.renderInvitations();
         this.renderInvitationsList();
-        this.renderInvitationsListFromUser();
         this.chipEmails = [];
         this.renderChips();
 
@@ -249,7 +248,6 @@ class InvitationApp {
         this.invitations.splice(idx, 1);
         this.renderInvitations();
         this.renderInvitationsList();
-        this.renderInvitationsListFromUser();
         this.showToast("Invitation revoked!", "red");
       });
     });
@@ -352,17 +350,131 @@ class InvitationApp {
     }
   }
 
-
-
-
-
-// Navigation method (add this if you don't have it)
-  navigateToTakeSurvey(surveyLink, invitationId) {
-    // Store the invitation ID
-    sessionStorage.setItem('currentInvitationId', invitationId);
-
-    // Navigate to the survey link
-    window.location.href = surveyLink;
+  navigateToTakeSurvey(surveyId, invitationId) {
+    console.log('Navigate to survey:', surveyId, 'invitation:', invitationId);
+    // implement actual navigation logic here
+  }
+  
+  // User profile handling
+  async loadUserProfile() {
+    try {
+      const { getUserProfile } = await import('../api/api.js');
+      const result = await getUserProfile();
+      
+      if (result.success && result.data) {
+        // Update user display with profile data
+        this.updateUserDisplay(result.data);
+        
+        // Initialize dropdown after profile is loaded
+        this.initializeUserDropdown();
+      } else {
+        console.warn('Failed to load user profile:', result);
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  }
+  
+  updateUserDisplay(user) {
+    const userNameElement = document.getElementById('userName');
+    if (userNameElement && user.name) {
+      userNameElement.textContent = user.name;
+    }
+    
+    // Store user data globally for dropdown
+    window.currentUser = user;
+  }
+  
+  initializeUserDropdown() {
+    const userProfile = document.querySelector('.user-profile');
+    if (userProfile) {
+      userProfile.style.cursor = 'pointer';
+      userProfile.addEventListener('click', () => this.toggleUserDropdown());
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!userProfile.contains(e.target)) {
+          this.closeUserDropdown();
+        }
+      });
+    }
+  }
+  
+  toggleUserDropdown() {
+    const existingDropdown = document.querySelector('.user-dropdown');
+    if (existingDropdown) {
+      this.closeUserDropdown();
+    } else {
+      this.showUserDropdown();
+    }
+  }
+  
+  showUserDropdown() {
+    const userProfile = document.querySelector('.user-profile');
+    if (!userProfile) return;
+    
+    const dropdown = document.createElement('div');
+    dropdown.className = 'user-dropdown';
+    dropdown.innerHTML = `
+      <div class="dropdown-header">
+        <div class="dropdown-user-info">
+          <img src="../images/profile.png" alt="User Avatar" class="dropdown-avatar">
+          <div class="dropdown-user-details">
+            <span class="dropdown-user-name">${window.currentUser?.name || 'User'}</span>
+            <span class="dropdown-user-email">${window.currentUser?.email || ''}</span>
+          </div>
+        </div>
+      </div>
+      <div class="dropdown-divider"></div>
+      <div class="dropdown-items">
+        <a href="#" class="dropdown-item" onclick="window.invitationApp.handleLogout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    `;
+    
+    userProfile.appendChild(dropdown);
+    
+    // Add show class for animation
+    setTimeout(() => dropdown.classList.add('show'), 10);
+  }
+  
+  closeUserDropdown() {
+    const dropdown = document.querySelector('.user-dropdown');
+    if (dropdown) {
+      dropdown.classList.remove('show');
+      setTimeout(() => dropdown.remove(), 200);
+    }
+  }
+  
+  async handleLogout() {
+    try {
+      const { clearToken } = await import('../lib/lib.js');
+      
+      // Clear authentication tokens
+      clearToken();
+      sessionStorage.clear();
+      
+      // Show logout message
+      if (window.M && window.M.toast) {
+        M.toast({
+          html: '<i class="fas fa-sign-out-alt"></i> Logged out successfully',
+          classes: 'success-toast',
+          displayLength: 2000
+        });
+      } else {
+        this.showToast('Logged out successfully', 'green');
+      }
+      
+      // Redirect to login after a brief delay
+      setTimeout(() => {
+        window.location.href = '../auth/signin.html';
+      }, 500);
+    } catch (error) {
+      console.error('Error during logout:', error);
+      this.showToast('Error during logout', 'red');
+    }
   }
 
   autoApproveDemo() {
@@ -372,7 +484,6 @@ class InvitationApp {
         this.invitations[pendingIdx].status = "approved";
         this.renderInvitations();
         this.renderInvitationsList();
-        this.renderInvitationsListFromUser();
       }
     }, 5000);
   }
@@ -409,11 +520,6 @@ class InvitationApp {
         setTimeout(() => toast.parentNode?.removeChild(toast), 300);
       }
     }, 3000);
-  }
-
-  navigateToTakeSurvey(surveyId, invitationId) {
-    console.log('Navigate to survey:', surveyId, 'invitation:', invitationId);
-    // implement actual navigation logic here
   }
 }
 

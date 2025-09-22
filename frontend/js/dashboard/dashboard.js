@@ -7,8 +7,10 @@ import {
     getReceivedInvitations,
     getReceivedInvitationsFromUser,
     getUserSurveys,
+    getUserProfile,
     requireAuth
 } from '../api/api.js';
+import { clearToken } from '../lib/lib.js';
 
 // Global state for dashboard data
 let dashboardData = {
@@ -70,18 +72,61 @@ function checkForSuccessMessages() {
  * Phase 6: Enhanced dashboard initialization
  */
 function initializeDashboard() {
-    // Initialize dashboard components
+    // Check if we're on the take-survey page
+    const isTakeSurveyPage = window.location.pathname.includes('take-survey.html');
+    
+    // Always set up event listeners and load user profile
     setupEventListeners();
-    loadDashboardData();
+    loadUserProfile();
+    
+    // Only load dashboard data if not on take-survey page
+    if (!isTakeSurveyPage) {
+        loadDashboardData();
+    } else {
+        console.log('On take-survey page, skipping full dashboard data load');
+    }
 
     // Initialize Materialize components
     M.AutoInit();
 }
 
 /**
+ * Load user profile and update display
+ */
+async function loadUserProfile() {
+    try {
+        const result = await getUserProfile();
+        if (result.success && result.data) {
+            updateUserDisplay(result.data);
+        } else {
+            console.warn('Failed to load user profile:', result);
+            // Keep default display if profile load fails
+        }
+    } catch (error) {
+        console.error('Error loading user profile:', error);
+    }
+}
+
+/**
+ * Update user display in header
+ */
+function updateUserDisplay(user) {
+    const userNameElement = document.getElementById('userName');
+    if (userNameElement && user.name) {
+        userNameElement.textContent = user.name;
+    }
+
+    // Store user data globally for dropdown
+    window.currentUser = user;
+}
+
+/**
  * Phase 6: Enhanced event listeners for dashboard interactions
  */
 function setupEventListeners() {
+    // Initialize user dropdown
+    initializeUserDropdown();
+
     // Create survey button
     const createSurveyBtn = document.querySelector('.btn-primary');
     if (createSurveyBtn) {
@@ -119,6 +164,13 @@ function setupEventListeners() {
  * Phase 6: Complete dashboard data loading with error handling
  */
 async function loadDashboardData() {
+    // Check if we're on the take-survey page and skip unnecessary operations
+    if (window.location.pathname.includes('take-survey.html')) {
+        console.log('On take-survey page, only loading essential dashboard components');
+        // We still need user profile data but can skip other dashboard components
+        return;
+    }
+    
     if (dashboardData.isLoading) {
         console.log('Dashboard data is already loading...');
         return;
@@ -237,6 +289,12 @@ function animateStatNumber(element, targetValue) {
  * Phase 6: Enhanced surveys display with dynamic card generation and real survey count
  */
 function updateSurveysDisplay(surveys) {
+    // Check if we're on the take-survey page and skip if we are
+    if (window.location.pathname.includes('take-survey.html')) {
+        console.log('On take-survey page, skipping surveys display update');
+        return;
+    }
+
     const surveysContainer = document.getElementById('surveysContainer');
     const emptyState = document.getElementById('emptySurveys');
 
@@ -294,6 +352,12 @@ function updateSurveysDisplay(surveys) {
 
 
 async function renderInvitationsListFromUser() {
+    // Check if we're on the take-survey page and skip if we are
+    if (window.location.pathname.includes('take-survey.html')) {
+        console.log('On take-survey page, skipping invitations list update');
+        return;
+    }
+
     const list = document.getElementById('invitations-list');
     if (!list) return;
 
@@ -677,15 +741,100 @@ function setupAutoRefresh() {
  * Phase 6: Logout functionality
  */
 function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        // Clear authentication token
-        localStorage.removeItem('authToken');
-        sessionStorage.clear();
+    // Clear authentication tokens using proper token helper
+    clearToken();
+    sessionStorage.clear();
 
-        // Redirect to login
+    // Show logout message
+    M.toast({
+        html: '<i class="fas fa-sign-out-alt"></i> Logged out successfully',
+        classes: 'success-toast',
+        displayLength: 2000
+    });
+
+    // Redirect to login after a brief delay
+    setTimeout(() => {
         window.location.href = '../auth/signin.html';
+    }, 500);
+}
+
+/**
+ * Initialize user profile dropdown
+ */
+function initializeUserDropdown() {
+    const userProfile = document.querySelector('.user-profile');
+    if (userProfile) {
+        userProfile.style.cursor = 'pointer';
+        userProfile.addEventListener('click', toggleUserDropdown);
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userProfile.contains(e.target)) {
+                closeUserDropdown();
+            }
+        });
     }
 }
+
+/**
+ * Toggle user dropdown menu
+ */
+function toggleUserDropdown() {
+    const existingDropdown = document.querySelector('.user-dropdown');
+    if (existingDropdown) {
+        closeUserDropdown();
+    } else {
+        showUserDropdown();
+    }
+}
+
+/**
+ * Show user dropdown menu
+ */
+function showUserDropdown() {
+    const userProfile = document.querySelector('.user-profile');
+    if (!userProfile) return;
+
+    const dropdown = document.createElement('div');
+    dropdown.className = 'user-dropdown';
+    dropdown.innerHTML = `
+        <div class="dropdown-header">
+            <div class="dropdown-user-info">
+                <img src="../images/profile.png" alt="User Avatar" class="dropdown-avatar">
+                <div class="dropdown-user-details">
+                    <span class="dropdown-user-name">${window.currentUser?.name || 'User'}</span>
+                    <span class="dropdown-user-email">${window.currentUser?.email || ''}</span>
+                </div>
+            </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-items">
+            <a href="#" class="dropdown-item" onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    `;
+
+    userProfile.appendChild(dropdown);
+    
+    // Add show class for animation
+    setTimeout(() => dropdown.classList.add('show'), 10);
+}
+
+/**
+ * Close user dropdown menu
+ */
+function closeUserDropdown() {
+    const dropdown = document.querySelector('.user-dropdown');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+        setTimeout(() => dropdown.remove(), 200);
+    }
+}
+
+// Make handleLogout globally available
+window.handleLogout = handleLogout;
 
 
 /**

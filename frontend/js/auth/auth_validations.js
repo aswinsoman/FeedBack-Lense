@@ -46,7 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         saveToken(data.accessToken);
-        window.location.href = LANDING_AFTER_SIGNIN;
+        
+        // Check if there's a return URL from survey access
+        const returnUrl = sessionStorage.getItem('returnUrl');
+        if (returnUrl) {
+          sessionStorage.removeItem('returnUrl');
+          window.location.href = returnUrl;
+        } else {
+          window.location.href = LANDING_AFTER_SIGNIN;
+        }
       } catch (err) {
         setFormError(signInForm, 'Cannot reach server. Please try again.');
         console.error(err);

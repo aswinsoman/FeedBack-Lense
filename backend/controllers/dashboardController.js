@@ -111,3 +111,26 @@ exports.getQuickSummary = async (req, res) => {
     return res.status(500).json({ error: 'Failed to load dashboard summary' });
   }
 };
+
+exports.pollUserDashboardStats = async (req, res) => {
+  console.log(req.user);
+  try {
+    // Use req.user._id if available, otherwise fallback to req.userId or null
+    const userId = req.user && req.user._id ? req.user._id.toString() : req.userId || null;
+
+    const stats = await dashboardService.getUserDashboardPollingStats(userId);
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch dashboard polling stats' });
+  }
+};
+
+exports.getCrossSurveyAggregation = async (req, res) => {
+  try {
+    const userId = req.user && req.user._id ? req.user._id.toString() : req.userId || null;
+    const data = await dashboardService.getCrossSurveyAggregation(userId);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch cross-survey aggregation' });
+  }
+};

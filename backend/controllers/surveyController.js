@@ -237,15 +237,65 @@ exports.updateSurveyStatus = async (req, res) => {
 };
 
 //save survey response
-//author: Aswin
+//author: Aswin and Suong Ngo
 exports.saveSurveyResponse = async (req, res) => {
   try {
     const surveyResponseService = require('../services/surveyResponse');
     const responseData = req.body;
-    const savedResponse = await surveyResponseService.saveSurveyResponse(responseData);
-    return res.status(201).json({ response: savedResponse });
+    
+    console.log('Received response data in controller:', JSON.stringify(responseData));
+    
+    // Additional validation at controller level
+    if (!responseData.surveyId) {
+      return res.status(400).json({ error: 'Survey ID is required' });
+    }
+    
+    if (!responseData.responses || !Array.isArray(responseData.responses) || responseData.responses.length === 0) {
+      return res.status(400).json({ error: 'At least one response is required' });
+    }
+
+    // Get user ID from auth if available
+    if (req.userId) {
+      console.log('Using authenticated user ID:', req.userId);
+      responseData.respondentId = req.userId;
+    }
+
+    // Process response data
+    try {
+      const savedResponse = await surveyResponseService.saveSurveyResponse(responseData);
+      console.log('Response saved successfully:', savedResponse._id);
+      
+      return res.status(201).json({ 
+        message: 'Survey response submitted successfully',
+        success: true,
+        response: {
+          id: savedResponse._id,
+          surveyId: savedResponse.surveyId,
+          submittedAt: savedResponse.submittedAt
+        }
+      });
+    } catch (saveError) {
+      console.error('Error saving response:', saveError);
+      throw saveError;
+    }
   } catch (error) {
     console.error('Save survey response error:', error);
-    return res.status(500).json({ error: 'Failed to save survey response' });
+    
+    // Handle specific errors with appropriate status codes
+    if (error.message.includes('duplicate key')) {
+      return res.status(409).json({ error: 'You have already submitted a response for this invitation' });
+    }
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        error: 'Validation error: ' + error.message,
+        details: error.errors 
+      });
+    }
+    
+    return res.status(500).json({ 
+      error: 'Failed to save survey response: ' + error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };

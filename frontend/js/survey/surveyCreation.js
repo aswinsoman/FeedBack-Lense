@@ -1,8 +1,9 @@
 // Survey Creation Module - Phase 5: API Integration & Survey Creation
 // Handles drag-and-drop file upload, CSV validation, UI transitions, and survey creation via API
 
-import { getAuthToken, createSurvey, requireAuth } from '../api/api.js';
+import { getAuthToken, createSurvey, requireAuth, getUserProfile } from '../api/api.js';
 import { csvValidator } from './csvValidator.js';
+import { clearToken } from '../lib/lib.js';
 
 // Global state to store parsed questions
 let currentSurveyData = {
@@ -54,8 +55,40 @@ function initializeSurveyCreation() {
     setupEventListeners();
     showStep(1);
     
+    // Load user profile for header display
+    loadUserProfile();
+    
     // Phase 5: Setup periodic authentication check (every 5 minutes)
     setupPeriodicAuthCheck();
+}
+
+/**
+ * Load user profile and update display
+ */
+async function loadUserProfile() {
+    try {
+        const result = await getUserProfile();
+        if (result.success && result.data) {
+            updateUserDisplay(result.data);
+        } else {
+            console.warn('Failed to load user profile:', result);
+        }
+    } catch (error) {
+        console.error('Error loading user profile:', error);
+    }
+}
+
+/**
+ * Update user display in header
+ */
+function updateUserDisplay(user) {
+    const userNameElement = document.getElementById('userName');
+    if (userNameElement && user.name) {
+        userNameElement.textContent = user.name;
+    }
+
+    // Store user data globally for dropdown
+    window.currentUser = user;
 }
 
 /**
@@ -404,6 +437,9 @@ function generateErrorSections(categorizedErrors) {
  * Phase 2: Setup event listeners
  */
 function setupEventListeners() {
+    // Initialize user dropdown functionality
+    initializeUserDropdown();
+    
     // Back button functionality
     const backButton = document.getElementById('backButton');
     if (backButton) {
@@ -2234,5 +2270,104 @@ function resetSurveyCreationFlow() {
         backButton.style.display = 'none';
     }
 }
+
+/**
+ * Initialize user profile dropdown
+ */
+function initializeUserDropdown() {
+    const userProfile = document.querySelector('.user-profile');
+    if (userProfile) {
+        userProfile.style.cursor = 'pointer';
+        userProfile.addEventListener('click', toggleUserDropdown);
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userProfile.contains(e.target)) {
+                closeUserDropdown();
+            }
+        });
+    }
+}
+
+/**
+ * Toggle user dropdown menu
+ */
+function toggleUserDropdown() {
+    const existingDropdown = document.querySelector('.user-dropdown');
+    if (existingDropdown) {
+        closeUserDropdown();
+    } else {
+        showUserDropdown();
+    }
+}
+
+/**
+ * Show user dropdown menu
+ */
+function showUserDropdown() {
+    const userProfile = document.querySelector('.user-profile');
+    if (!userProfile) return;
+
+    const dropdown = document.createElement('div');
+    dropdown.className = 'user-dropdown';
+    dropdown.innerHTML = `
+        <div class="dropdown-header">
+            <div class="dropdown-user-info">
+                <img src="../images/profile.png" alt="User Avatar" class="dropdown-avatar">
+                <div class="dropdown-user-details">
+                    <span class="dropdown-user-name">${window.currentUser?.name || 'User'}</span>
+                    <span class="dropdown-user-email">${window.currentUser?.email || ''}</span>
+                </div>
+            </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-items">
+            <a href="#" class="dropdown-item" onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    `;
+
+    userProfile.appendChild(dropdown);
+    
+    // Add show class for animation
+    setTimeout(() => dropdown.classList.add('show'), 10);
+}
+
+/**
+ * Close user dropdown menu
+ */
+function closeUserDropdown() {
+    const dropdown = document.querySelector('.user-dropdown');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+        setTimeout(() => dropdown.remove(), 200);
+    }
+}
+
+/**
+ * Handle logout functionality
+ */
+function handleLogout() {
+    // Clear authentication tokens using proper token helper
+    clearToken();
+    sessionStorage.clear();
+
+    // Show logout message
+    M.toast({
+        html: '<i class="fas fa-sign-out-alt"></i> Logged out successfully',
+        classes: 'success-toast',
+        displayLength: 2000
+    });
+
+    // Redirect to login after a brief delay
+    setTimeout(() => {
+        window.location.href = '../auth/signin.html';
+    }, 500);
+}
+
+// Make handleLogout globally available
+window.handleLogout = handleLogout;
 
 // ...existing code...
