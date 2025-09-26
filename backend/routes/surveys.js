@@ -17,6 +17,9 @@ router.get('/:surveyId', surveyController.getSurveyDetails);
 
 router.patch('/:surveyId/status', surveyController.updateSurveyStatus);
 
+// Update survey end date
+router.patch('/:surveyId/end-date', surveyController.updateSurveyEndDate);
+
 // Survey invitation management
 router.post('/:surveyId/invitations', 
   require('../controllers/invitationController').sendInvitations

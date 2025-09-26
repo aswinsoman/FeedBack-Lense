@@ -35,7 +35,7 @@ function scoreToLabel(score) {
 }
 
 function createSummary(analysis, style = 'report') {
-  const { overallSentiment, topKeywords, details } = analysis || {};
+  const { overallSentiment, topKeywords, details, sentimentBreakdown } = analysis || {};
   const topics = (topKeywords || []).slice(0, 5).map(k => k.term);
   const topicsText = topics.length ? topics.join(', ') : 'no dominant keywords';
 
@@ -43,18 +43,37 @@ function createSummary(analysis, style = 'report') {
     ? overallSentiment.score.toFixed(2)
     : '0.00';
   const labelTxt = (overallSentiment && overallSentiment.label) || 'neutral';
-  const answers = (details && details.answersCount) || 0;
+  const totalResponses = (details && details.totalResponses) || 0;
 
-  if (answers === 0) {
-    return 'No answers found for this survey; not enough data to summarize.';
+  if (totalResponses === 0) {
+    return 'No responses found for this survey; not enough data to summarize.';
   }
 
+  // Use actual distribution to qualify magnitudes (prevents misleading phrases)
+  const pos = Number(sentimentBreakdown?.positive || 0);
+  const neu = Number(sentimentBreakdown?.neutral || 0);
+  const neg = Number(sentimentBreakdown?.negative || 0);
+  const denom = Math.max(1, pos + neu + neg);
+  const posPct = pos / denom;
+  const neuPct = neu / denom;
+  const negPct = neg / denom;
+
+  // Qualifiers based on proportions
+  const qualifier = (() => {
+    if (negPct >= 0.5) return 'Predominantly dissatisfied';
+    if (negPct >= 0.3) return 'Many respondents expressed dissatisfaction';
+    if (negPct >= 0.15) return 'Some respondents expressed dissatisfaction';
+    if (posPct >= 0.5) return 'Predominantly satisfied';
+    if (posPct >= 0.3) return 'Many respondents reported satisfaction';
+    return 'Responses were mostly neutral to mixed';
+  })();
+
   if (style === 'narrative') {
-    return `Most responses indicate a ${labelTxt} overall tone (score ${scoreTxt}). Respondents most often mentioned ${topicsText}. This summary is based on ${answers} answers across all responses.`;
+    return `${qualifier}. Overall tone is ${labelTxt} (score ${scoreTxt}). Common topics: ${topicsText}. Summary based on ${totalResponses} response${totalResponses === 1 ? '' : 's'}.`;
   }
 
   // default: 'report'
-  return `Overall sentiment: ${labelTxt} (score ${scoreTxt}). Top keywords: ${topicsText}. Based on ${answers} answers.`;
+  return `${qualifier}. Overall sentiment: ${labelTxt} (score ${scoreTxt}). Top keywords: ${topicsText}. Based on ${totalResponses} response${totalResponses === 1 ? '' : 's'}.`;
 }
 
 /**
@@ -81,8 +100,14 @@ async function analyzeSurvey(surveyId, opts = {}) {
   let totalScore = 0;
   let totalTokens = 0;
   let answerCount = 0;
+  const totalResponses = docs.length; // Count of unique survey submissions
 
   const freqByStem = new Map(); // stem -> { count, forms: Map<form,count> }
+
+  // Real sentiment distribution (count answers by label)
+  let positiveCount = 0;
+  let neutralCount = 0;
+  let negativeCount = 0;
 
   for (const doc of docs) {
     for (const r of (doc.responses || [])) {
@@ -96,6 +121,12 @@ async function analyzeSurvey(surveyId, opts = {}) {
       totalScore += s;
       totalTokens += Math.max(tokens.length, 1);
       answerCount += 1;
+
+      // classify this answer into sentiment buckets
+      const label = scoreToLabel(s);
+      if (label === 'positive') positiveCount += 1;
+      else if (label === 'negative') negativeCount += 1;
+      else neutralCount += 1;
 
       // keywords
       for (const tok of tokens) {
@@ -128,8 +159,14 @@ async function analyzeSurvey(surveyId, opts = {}) {
       score: Number(overall.toFixed(3)),
       label: scoreToLabel(overall)
     },
+    sentimentBreakdown: {
+      positive: positiveCount,
+      neutral: neutralCount,
+      negative: negativeCount
+    },
     details: {
-      answersCount: answerCount,
+      answersCount: answerCount, // Individual question answers for keywords/sentiment
+      totalResponses: totalResponses, // Unique survey submissions
       tokens: totalTokens
     }
   };

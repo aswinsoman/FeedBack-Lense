@@ -2,6 +2,7 @@
 //Author: Aswin and Suong Ngo
 
 const Response = require('../models/Response');
+const Invitation = require('../models/Invitation');
 const mongoose = require('mongoose');
 const activityService = require('./activityService'); // Add this at the top
 const Survey = require('../models/Survey'); // For survey title in activity
@@ -73,6 +74,67 @@ async function saveSurveyResponse(data) {
     await response.save();
     console.log('Response saved successfully with ID:', response._id);
 
+    // Update invitation status to 'completed' if invitationId is valid
+    if (data.invitationId && mongoose.Types.ObjectId.isValid(data.invitationId)) {
+      try {
+        const updateResult = await Invitation.findByIdAndUpdate(
+          data.invitationId,
+          {
+            status: 'completed',
+            completedAt: new Date()
+          },
+          { new: true }
+        );
+        if (updateResult) {
+          console.log('Invitation status updated to completed for invitation ID:', data.invitationId.toString());
+        } else {
+          console.log('Invitation not found for ID:', data.invitationId.toString());
+          // Try to find invitation by surveyId and respondentId
+          await Invitation.findOneAndUpdate(
+            {
+              surveyId: data.surveyId,
+              userId: data.respondentId,
+              status: 'sent'
+            },
+            {
+              status: 'completed',
+              completedAt: new Date()
+            },
+            { new: true }
+          );
+        }
+      } catch (invitationUpdateError) {
+        console.error('Error updating invitation status:', invitationUpdateError);
+        // Try alternative method
+        await Invitation.findOneAndUpdate(
+          {
+            surveyId: data.surveyId,
+            userId: data.respondentId,
+            status: 'sent'
+          },
+          {
+            status: 'completed',
+            completedAt: new Date()
+          },
+          { new: true }
+        );
+      }
+    } else {
+      // If no valid invitationId, try to find invitation by surveyId and respondentId
+      await Invitation.findOneAndUpdate(
+        {
+          surveyId: data.surveyId,
+          userId: data.respondentId,
+          status: 'sent'
+        },
+        {
+          status: 'completed',
+          completedAt: new Date()
+        },
+        { new: true }
+      );
+    }
+    
     // Log activity for response submitted
     try {
       // Fetch survey for title (optional, for better activity message)
@@ -96,7 +158,6 @@ async function saveSurveyResponse(data) {
     } catch (activityErr) {
       console.error('Failed to log activity for response:', activityErr);
     }
-
     return response;
   } catch (error) {
     console.error('Error saving survey response:', error);
@@ -104,6 +165,34 @@ async function saveSurveyResponse(data) {
   }
 }
 
+// Helper function to update invitation status by surveyId and userId
+async function updateInvitationBySurveyAndUser(surveyId, userId) {
+  try {
+    const invitation = await Invitation.findOneAndUpdate(
+      { 
+        surveyId: surveyId,
+        userId: userId,
+        status: 'sent' // Only update if still 'sent'
+      },
+      { 
+        status: 'completed',
+        completedAt: new Date()
+      },
+      { new: true }
+    );
+    
+    if (invitation) {
+      console.log('Invitation status updated to completed for survey:', surveyId.toString(), 'user:', userId.toString());
+    } else {
+      console.log('No pending invitation found for survey:', surveyId.toString(), 'user:', userId.toString());
+    }
+  } catch (error) {
+    console.error('Error updating invitation by survey and user:', error);
+    // Don't throw error - this is a best-effort update
+  }
+}
+
 module.exports = {
-  saveSurveyResponse
+  saveSurveyResponse,
+  updateInvitationBySurveyAndUser
 };

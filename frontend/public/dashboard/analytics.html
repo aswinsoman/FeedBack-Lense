@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - FeedBack-Lense</title>
+    
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="../../css/dashboard.css" rel="stylesheet">
+    <link href="../../css/analytics.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="../images/logo.png" alt="FeedbackLens Logo" class="logo-image">
+                    <div class="logo-text">
+                        <span class="logo-name">FeedbackLens</span>
+                        <span class="logo-tagline">TECHNOLOGY</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">
+                            <i class="fas fa-tachometer-alt nav-icon"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="create-survey.html" class="nav-link">
+                            <i class="fas fa-plus-circle nav-icon"></i>
+                            <span class="nav-text">Create Surveys</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="invitation.html" class="nav-link">
+                            <i class="fas fa-envelope nav-icon"></i>
+                            <span class="nav-text">Invitations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="analytics.html" class="nav-link">
+                            <i class="fas fa-chart-line nav-icon"></i>
+                            <span class="nav-text">Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="analytics-page-header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <div class="breadcrumb-nav">
+                            <a href="index.html" class="back-link">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                            <h1 class="page-title">Analytics</h1>
+                        </div>
+                        <p class="page-subtitle">Use this page to explore and understand your analytics with ease.</p>
+                    </div>
+                    <div class="user-section">
+                        <div class="user-info">
+                            <i class="fas fa-bell notification-icon"></i>
+                            <div class="user-profile">
+                                <img src="../images/profile.png" alt="User Avatar" class="user-avatar">
+                                <div class="user-details">
+                                    <span class="user-name" id="userName">...</span>
+                                    <span class="user-role">User</span>
+                                </div>
+                                <i class="fas fa-chevron-down" style="margin-left: 8px; font-size: 12px; color: #64748b;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Analytics Content -->
+            <div class="analytics-content">
+                <!-- Recent Completions Section -->
+                <div class="recent-completions-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Completions</h2>
+                        <p class="section-subtitle">Members who recently completed this survey</p>
+                    </div>
+                    
+                    <!-- Search Section -->
+                    <div class="search-section">
+                        <div class="search-container">
+                            <div class="input-field">
+                                <i class="fas fa-search prefix"></i>
+                                <input type="text" id="searchSurveys" placeholder="Search surveys">
+                                <label for="searchSurveys">Search surveys</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Surveys Table -->
+                    <div class="surveys-table-container">
+                        <table class="surveys-table" id="surveysTable">
+                            <thead>
+                                <tr>
+                                    <th>Survey ID</th>
+                                    <th>Survey Title</th>
+                                    <th>Publish Date</th>
+                                    <th>Status</th>
+                                    <th>End Date</th>
+                                    <th>Total Response</th>
+                                </tr>
+                            </thead>
+                            <tbody id="surveysTableBody">
+                                <tr class="loading-row">
+                                    <td colspan="6" class="center-align">
+                                        <div class="preloader-wrapper small active">
+                                            <div class="spinner-layer spinner-blue-only">
+                                                <div class="circle-clipper left">
+                                                    <div class="circle"></div>
+                                                </div>
+                                                <div class="gap-patch">
+                                                    <div class="circle"></div>
+                                                </div>
+                                                <div class="circle-clipper right">
+                                                    <div class="circle"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        Loading surveys...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state" id="emptyState" style="display: none;">
+                        <div class="empty-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4>No Analytics Data</h4>
+                        <p>Create surveys and collect responses to see analytics insights.</p>
+                        <a href="create-survey.html" class="btn btn-primary">Create Survey</a>
+                    </div>
+
+                    <!-- Error State -->
+                    <div class="error-state" id="errorState" style="display: none;">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h4>Unable to Load Analytics</h4>
+                        <p id="errorMessage">Failed to load analytics data. Please try again.</p>
+                        <button class="btn btn-primary waves-effect" onclick="loadAnalyticsOverview()">
+                            <i class="fas fa-redo"></i> Retry
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <!-- Real Analytics with Backend Integration -->
+    <script type="module" src="../../js/api/api.js"></script>
+    <script type="module" src="../../js/analytics/analytics-real.js"></script>
+</body>
+</html>

@@ -7,6 +7,7 @@ let isInitialized = false; // Prevent multiple initialization
 let userProfileLoaded = false; // Prevent multiple user profile loads
 let dropdownInitialized = false; // Prevent multiple dropdown initialization
 let userResponses = {}; // Store user responses between page navigations
+let surveyStartTime = null; // Track when respondent starts the survey
 
 // Initialize Materialize components
 document.addEventListener("DOMContentLoaded", function () {
@@ -86,6 +87,10 @@ async function loadSurveyData(surveyId) {
 
         if (result.success) {
             surveyData = result.data.survey;
+            // Initialize start time once when survey loads
+            if (!surveyStartTime) {
+                surveyStartTime = Date.now();
+            }
             renderSurvey(surveyData);
         } else {
             // Handle different types of errors
@@ -115,9 +120,17 @@ window.saveCurrentPageResponses = function() {
     const pageQuestions = surveyData.questions.slice(startIndex, endIndex);
     
     pageQuestions.forEach(question => {
-        const textArea = document.getElementById(`text_question_${question.questionId}`);
-        if (textArea) {
-            userResponses[question.questionId] = textArea.value;
+        const qType = (question.type || 'text');
+        if (qType === 'text') {
+            const textArea = document.getElementById(`text_question_${question.questionId}`);
+            if (textArea) {
+                userResponses[question.questionId] = textArea.value;
+            }
+        } else if (qType === 'likert' || qType === 'multiple-choice') {
+            const selected = document.querySelector(`input[name="q_${question.questionId}"]:checked`);
+            if (selected) {
+                userResponses[question.questionId] = selected.value;
+            }
         }
     });
 };
@@ -149,20 +162,48 @@ function renderSurvey(data) {
             const globalIndex = startIndex + index;
             // Get previously saved response for this question, if any
             const savedResponse = userResponses[question.questionId] || '';
-            
-            questionsHtml += `
-              <div class="text-question">
-                <div class="question-title">Q${globalIndex + 1}: ${question.questionText}</div>
-                <div class="text-area-container">
+
+            const qType = (question.type || 'text');
+            let bodyHtml = '';
+            if (qType === 'text') {
+                bodyHtml = `
                   <textarea
                     class="custom-textarea"
                     placeholder="Write your answer here..."
                     rows="5"
                     id="text_question_${question.questionId}"
-                  >${savedResponse}</textarea>
+                  >${savedResponse}</textarea>`;
+            } else if (qType === 'likert') {
+                const likertLabels = ['Strongly Disagree','Disagree','Neutral','Agree','Strongly Agree'];
+                bodyHtml = `
+                  <div class="likert-scale">
+                    ${[1,2,3,4,5].map((v, i) => `
+                      <label style="display:flex;align-items:center;gap:8px;">
+                        <input type="radio" name="q_${question.questionId}" value="${v}" ${String(savedResponse)===String(v)?'checked':''} />
+                        <span>${likertLabels[i]}</span>
+                      </label>
+                    `).join('')}
+                  </div>`;
+            } else if (qType === 'multiple-choice') {
+                const opts = Array.isArray(question.options) ? question.options : [];
+                bodyHtml = `
+                  <div class="choice-options">
+                    ${opts.map((opt, i) => `
+                      <label class="choice-option" style="display:flex;align-items:center;gap:8px;">
+                        <input type="radio" name="q_${question.questionId}" value="${opt}" ${String(savedResponse)===String(opt)?'checked':''} />
+                        <span>${opt}</span>
+                      </label>
+                    `).join('')}
+                  </div>`;
+            }
+
+            questionsHtml += `
+              <div class="text-question">
+                <div class="question-title">Q${globalIndex + 1}: ${question.questionText}</div>
+                <div class="text-area-container">
+                  ${bodyHtml}
                 </div>
-              </div>
-            `;
+              </div>`;
         });
 
         // Pagination buttons
@@ -246,13 +287,19 @@ window.submitSurvey = async function() {
 
     // Validate all questions are answered - now checking from userResponses object
     surveyData.questions.forEach((question, index) => {
+        const qType = (question.type || 'text');
         const answer = userResponses[question.questionId];
-        
-        if (answer && answer.trim()) {
+
+        const isAnswered = () => {
+            if (qType === 'text') return typeof answer === 'string' && answer.trim().length > 0;
+            return typeof answer !== 'undefined' && String(answer).length > 0;
+        };
+
+        if (isAnswered()) {
             responsesArray.push({
                 questionId: question.questionId,
                 questionText: question.questionText,
-                answer: answer.trim()
+                answer: qType === 'text' ? answer.trim() : String(answer)
             });
         } else {
             allAnswered = false;
@@ -306,13 +353,20 @@ window.submitSurvey = async function() {
         console.log("Survey ID:", surveyData.id);
         console.log("User ID:", respondentId);
         
-        // Prepare data for submission
+    // Prepare data for submission
         const responseData = {
             surveyId: surveyData.id,
             respondentId: respondentId,
             invitationId: invitationId || randomInvitationId,
-            responses: responsesArray,
-            completionTime: 300, // Hardcoded time for now (5 minutes)
+        responses: responsesArray,
+        // Calculate time spent since survey load (in seconds)
+        completionTime: (() => {
+            const now = Date.now();
+            const started = surveyStartTime || now;
+            const seconds = Math.round((now - started) / 1000);
+            // Guardrails: min 1s, max 24h
+            return Math.min(24 * 60 * 60, Math.max(1, seconds));
+        })(),
         };
         
         console.log("Submitting response data:", responseData);

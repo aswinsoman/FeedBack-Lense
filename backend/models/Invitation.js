@@ -21,7 +21,6 @@ const invitationSchema = new mongoose.Schema({
   uniqueToken: { 
     type: String, 
     required: true, 
-    unique: true,
     default: function() {
       return uuidv4();
     }

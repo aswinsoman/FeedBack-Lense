@@ -236,6 +236,58 @@ exports.updateSurveyStatus = async (req, res) => {
   }
 };
 
+// Update survey end date
+exports.updateSurveyEndDate = async (req, res) => {
+  try {
+    const { surveyId } = req.params;
+    const { endDate } = req.body;
+    const userId = req.userId;
+
+    // Validate inputs
+    if (!endDate) {
+      return res.status(400).json({ error: 'End date is required' });
+    }
+
+    const endDateTime = new Date(endDate);
+    if (isNaN(endDateTime.getTime())) {
+      return res.status(400).json({ error: 'Invalid end date format' });
+    }
+
+    // Check if end date is in the future
+    if (endDateTime <= new Date()) {
+      return res.status(400).json({ error: 'End date must be in the future' });
+    }
+
+    // Update survey with end date
+    const updatedSurvey = await surveyService.updateSurveyEndDate(surveyId, userId, endDateTime);
+    
+    res.status(200).json({
+      message: 'Survey end date updated successfully',
+      survey: {
+        id: updatedSurvey._id,
+        title: updatedSurvey.title,
+        endDate: updatedSurvey.endDate,
+        status: updatedSurvey.getEffectiveStatus(),
+        daysRemaining: updatedSurvey.daysRemaining
+      }
+    });
+  } catch (error) {
+    console.error('Update survey end date error:', error);
+    
+    if (error.message === 'Survey not found') {
+      return res.status(404).json({ error: 'Survey not found' });
+    }
+    
+    if (error.message === 'Unauthorized') {
+      return res.status(403).json({ error: 'You can only update your own surveys' });
+    }
+    
+    return res.status(500).json({ 
+      error: 'Failed to update survey end date: ' + error.message 
+    });
+  }
+};
+
 //save survey response
 //author: Aswin and Suong Ngo
 exports.saveSurveyResponse = async (req, res) => {

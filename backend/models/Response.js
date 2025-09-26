@@ -49,7 +49,6 @@ const responseSchema = new mongoose.Schema({
 // Indexes for analytics queries
 responseSchema.index({ surveyId: 1, submittedAt: -1 });
 responseSchema.index({ respondentId: 1 });
-responseSchema.index({ invitationId: 1 });
 
 // Ensure one response per invitation
 responseSchema.index({ invitationId: 1 }, { unique: true });

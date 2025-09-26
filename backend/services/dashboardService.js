@@ -7,6 +7,51 @@ const User = require('../models/User');
 const Survey = require('../models/Survey');
 const Invitation = require('../models/Invitation');
 const Response = require('../models/Response');
+const natural = require('natural');
+
+// sentiment tools
+const { SentimentAnalyzer, PorterStemmer, WordTokenizer } = natural;
+const analyzer = new SentimentAnalyzer('English', PorterStemmer, 'pattern');
+const tokenizer = new WordTokenizer();
+
+const STOPWORDS = new Set([
+  'the','a','an','and','or','but','of','to','in','on','for','with','at','by','from',
+  'is','are','was','were','be','been','it','this','that','these','those','as','if',
+  'so','we','you','they','he','she','i','me','my','our','your','their','do','did','does','doing',
+  'have','has','had','having','can','could','should','would','will','just','about','into','over','under','than','then','there','here'
+]);
+
+function normalizeTokens(text) {
+  return tokenizer
+    .tokenize(text || '')
+    .map(t => t.toLowerCase().replace(/[^a-z0-9']/g, ''))
+    .filter(t => t.length >= 2 && !STOPWORDS.has(t));
+}
+
+function scoreLabel(score) {
+  if (score > 0.2) return 'positive';
+  if (score < -0.2) return 'negative';
+  return 'neutral';
+}
+
+function likertMap(answer) {
+  const a = String(answer || '').toLowerCase();
+  if (/very\s*satisfied/.test(a)) return 5;
+  if (/satisfied/.test(a)) return 4;
+  if (/(not\s*sure|neutral)/.test(a)) return 2.5;
+  if (/very\s*dissatisfied/.test(a)) return 0;
+  if (/dissatisfied/.test(a)) return 1;
+  return null;
+}
+
+function analyzerToFive(text) {
+  const tokens = normalizeTokens(text);
+  const s = analyzer.getSentiment(tokens);
+  const label = scoreLabel(s);
+  if (label === 'positive') return 5;
+  if (label === 'negative') return 0;
+  return 2.5;
+}
 
 // Simple numerical statistics calculation
 const calculateNumericalStats = (values) => {
@@ -92,15 +137,13 @@ const calculateSurveyAnalysis = async (surveyId) => {
       });
     });
 
-    // Calculate analysis only for numerical questions
+    // Calculate analysis only for numerical questions (existing)
     const questionAnalysis = Object.values(questionData)
       .map(({ questionId, questionText, answers }) => {
         if (!isNumericalQuestion(answers)) {
-          return null; // Skip non-numerical questions
+          return null; // Skip non-numerical questions for numerical stats
         }
-        
         const statistics = calculateNumericalStats(answers);
-        
         return {
           questionId,
           questionText,
@@ -109,7 +152,133 @@ const calculateSurveyAnalysis = async (surveyId) => {
           statistics
         };
       })
-      .filter(q => q && q.statistics); // Only include questions with valid statistics
+      .filter(q => q && q.statistics);
+
+    // New: sentiment-based 0-5 Question Scores and Key Insights
+    const questionScores = Object.values(questionData).map(({ questionId, questionText, answers }) => {
+      if (!answers || answers.length === 0) {
+        return { questionId, questionText, score: 0, sampleAnswersCount: 0 };
+      }
+      let total = 0;
+      let pos = 0, neu = 0, neg = 0;
+      const keywordCounts = new Map();
+      for (const ans of answers) {
+        // Prefer Likert mappings when available
+        const likert = likertMap(ans);
+        const score = likert != null ? likert : analyzerToFive(ans);
+        total += score;
+        const tokens = normalizeTokens(ans);
+        tokens.forEach(t => keywordCounts.set(t, (keywordCounts.get(t) || 0) + 1));
+        const lbl = scoreLabel(analyzer.getSentiment(normalizeTokens(ans)));
+        if (lbl === 'positive') pos++; else if (lbl === 'negative') neg++; else neu++;
+      }
+      const avg = Number((total / answers.length).toFixed(2));
+      // keyword selection
+      const top = Array.from(keywordCounts.entries()).sort((a,b)=>b[1]-a[1])[0];
+      const topKeyword = top ? top[0] : (questionText.split(/[:?]/)[0] || 'Insights');
+      // tone/impact heuristic
+      const tone = pos > neg ? 'positive' : (neg > pos ? 'negative' : 'neutral');
+      const impact = avg >= 4.2 ? 'high' : avg >= 3 ? 'medium' : 'low';
+      const desc = tone === 'positive'
+        ? `Many respondents expressed positive feedback about ${topKeyword}.`
+        : tone === 'negative'
+          ? `Concerns were raised regarding ${topKeyword}.`
+          : `Responses were mixed regarding ${topKeyword}.`;
+      return {
+        questionId,
+        questionText,
+        score: avg,
+        sampleAnswersCount: answers.length,
+        _insight: {
+          title: topKeyword.charAt(0).toUpperCase() + topKeyword.slice(1),
+          description: desc,
+          tone,
+          impact
+        }
+      };
+    });
+
+    // Build insights list with type-aware rules
+    const insights = [];
+
+    // Likert Q1/Q4 style using question text heuristics
+    Object.values(questionData).forEach(({ questionId, questionText, answers }) => {
+      if (insights.length >= 4) return;
+      const qtext = (questionText || '').toLowerCase();
+      const likertAnswers = answers.map(a => String(a));
+      const counts = { vs:0, s:0, n:0, d:0, vd:0 };
+      likertAnswers.forEach(a => {
+        const val = String(a).toLowerCase();
+        if (val.includes('very dissatisfied')) counts.vd++;
+        else if (val.includes('dissatisfied')) counts.d++;
+        else if (/(not sure|neutral)/.test(val)) counts.n++;
+        else if (val.includes('very satisfied')) counts.vs++;
+        else if (val.includes('satisfied')) counts.s++;
+      });
+      const totalLikert = counts.vs+counts.s+counts.n+counts.d+counts.vd;
+      if (totalLikert > 0) {
+        const pct = k => Math.round((counts[k] / totalLikert) * 100);
+        const negPct = pct('vd') + pct('d');
+        const posPct = pct('vs') + pct('s');
+        const neuPct = pct('n');
+        let title = 'Mixed Satisfaction';
+        let tone = 'neutral';
+        // Calibrated thresholds so we only call "High Dissatisfaction" when it truly dominates
+        if (negPct >= 60) { title = 'High Dissatisfaction'; tone='negative'; }
+        else if (negPct >= 30) { title = 'Notable Dissatisfaction'; tone='negative'; }
+        else if (posPct >= 60) { title = 'High Satisfaction'; tone='positive'; }
+        const impact = negPct >= 40 || posPct >= 60 ? 'high' : (Math.max(negPct,posPct) >= 25 ? 'medium' : 'low');
+        const description = title === 'High Dissatisfaction'
+          ? 'A majority of respondents expressed dissatisfaction.'
+          : title === 'Notable Dissatisfaction'
+            ? 'Some respondents expressed dissatisfaction.'
+          : title === 'High Satisfaction'
+            ? 'Most respondents reported being satisfied.'
+            : 'Responses show a mix of satisfaction levels.';
+        insights.push({ questionId, title, description, tone, impact, stats: { total: totalLikert } });
+        return;
+      }
+
+      // Multi-select (methods, options separated by ;)
+      if (answers.some(a => String(a).includes(';'))) {
+        const optionCounts = new Map();
+        answers.forEach(a => String(a).split(';').map(s=>s.trim()).filter(Boolean).forEach(opt => optionCounts.set(opt, (optionCounts.get(opt)||0)+1)));
+        const sorted = Array.from(optionCounts.entries()).sort((a,b)=>b[1]-a[1]);
+        const total = sorted.reduce((a,[_k,c])=>a+c,0);
+        const top = sorted.slice(0,3).map(([opt,_c])=>opt).join(', ');
+        insights.push({ questionId, title: `Preference: ${sorted[0][0]}`,
+          description: `Common choices include ${top}.`, tone: 'neutral',
+          impact: sorted[0][1]/total>=0.5?'high':(sorted[0][1]/total>=0.3?'medium':'low') });
+        return;
+      }
+
+      // Free text themes with sample quote
+      const themeCounts = new Map();
+      let quote = null;
+      answers.forEach(a => {
+        const text = String(a);
+        const toks = normalizeTokens(text);
+        for (let i=0;i<toks.length-1;i++) {
+          const bigram = `${toks[i]} ${toks[i+1]}`;
+          themeCounts.set(bigram, (themeCounts.get(bigram)||0)+1);
+        }
+        if (!quote && /improve|unclear|heavy|issue|problem|bad|poor/.test(text.toLowerCase())) quote = text;
+      });
+      const theme = Array.from(themeCounts.entries()).sort((a,b)=>b[1]-a[1])[0];
+      if (theme) {
+        const themeText = theme[0];
+        const s = analyzer.getSentiment(normalizeTokens(answers.join(' ')));
+        const tone = scoreLabel(s);
+        const impact = theme[1] >= 3 ? 'high' : theme[1] === 2 ? 'medium' : 'low';
+        const description = tone === 'negative' && quote
+          ? `Several comments raise concerns about "${themeText}". Example: “${quote}”.`
+          : `Frequent mentions of "${themeText}".`;
+        insights.push({ questionId, title: (tone==='negative'?`${themeText} needs improvement`:`${themeText}`), description, tone, impact });
+      }
+    });
+
+    // Cap to max 4
+    const finalInsights = insights.slice(0,4);
 
     // Calculate overall metrics
     const avgCompletionTime = completionTimes.length > 0 
@@ -123,6 +292,8 @@ const calculateSurveyAnalysis = async (surveyId) => {
 
     return {
       questionAnalysis,
+      questionScores,
+      insights: finalInsights,
       overallMetrics
     };
 
@@ -290,6 +461,93 @@ exports.getSurveyDashboard = async (surveyId, creatorId) => {
 
     const analysis = await calculateSurveyAnalysis(surveyId);
 
+    // Recent responses for table
+    const recentResponsesDocs = await Response.find({ surveyId })
+      .sort({ submittedAt: -1 })
+      .limit(10)
+      .populate('respondentId', 'name email')
+      .lean();
+
+    // Fill missing respondent emails via invitation.userId
+    const missingInviteIds = recentResponsesDocs
+      .filter(d => (!d.respondentId || !d.respondentId.email) && d.invitationId)
+      .map(d => d.invitationId);
+    let inviteUserMap = new Map();
+    if (missingInviteIds.length) {
+      const invites = await Invitation.find({ _id: { $in: missingInviteIds } })
+        .populate('userId', 'name email')
+        .select({ _id: 1, userId: 1 })
+        .lean();
+      invites.forEach(inv => inviteUserMap.set(String(inv._id), inv.userId));
+    }
+
+    const respondedUserIds = new Set(recentResponsesDocs.map(d => String(d.respondentId?._id || '')));
+
+    const recentResponses = recentResponsesDocs.map(doc => {
+      const text = (doc.responses || []).map(r => r.answer || '').join(' ');
+      const tokens = normalizeTokens(text);
+      const s = analyzer.getSentiment(tokens);
+      const label = scoreLabel(s);
+      const fallbackUser = inviteUserMap.get(String(doc.invitationId));
+
+      // derive satisfaction level from a Likert answer (try Q1 first, then any answer)
+      let satisfactionLevel = null;
+      const likertResp = (doc.responses || []).find(r => String(r.questionId).toLowerCase() === 'q1') || (doc.responses || [])[0];
+      const ans = likertResp?.answer ? String(likertResp.answer) : '';
+      if (/very\s*dissatisfied/i.test(ans)) satisfactionLevel = 'Very Dissatisfied';
+      else if (/dissatisfied/i.test(ans)) satisfactionLevel = 'Dissatisfied';
+      else if (/(not\s*sure|neutral)/i.test(ans)) satisfactionLevel = 'Neutral';
+      else if (/very\s*satisfied/i.test(ans)) satisfactionLevel = 'Very Satisfied';
+      else if (/satisfied/i.test(ans)) satisfactionLevel = 'Satisfied';
+      // fallback: scan all answers for any likert keyword
+      if (!satisfactionLevel && Array.isArray(doc.responses)) {
+        for (const r of doc.responses) {
+          const a = String(r.answer || '');
+          if (/very\s*dissatisfied/i.test(a)) { satisfactionLevel = 'Very Dissatisfied'; break; }
+          if (/dissatisfied/i.test(a)) { satisfactionLevel = 'Dissatisfied'; break; }
+          if (/(not\s*sure|neutral)/i.test(a)) { satisfactionLevel = 'Neutral'; break; }
+          if (/very\s*satisfied/i.test(a)) { satisfactionLevel = 'Very Satisfied'; break; }
+          if (/satisfied/i.test(a)) { satisfactionLevel = 'Satisfied'; break; }
+        }
+      }
+
+      return {
+        id: doc._id,
+        respondent: {
+          name: (doc.respondentId?.name || fallbackUser?.name || 'Respondent'),
+          email: (doc.respondentId?.email || fallbackUser?.email || '')
+        },
+        submittedAt: doc.submittedAt,
+        completionTime: doc.completionTime || 0,
+        sentiment: { label, score: Number(s.toFixed ? s.toFixed(3) : s) },
+        satisfactionLevel: satisfactionLevel,
+        status: 'Completed'
+      };
+    });
+
+    // Include pending invites (not completed yet)
+    const allInvites = await Invitation.find({ surveyId })
+      .populate('userId', 'name email')
+      .select({ status: 1, userId: 1, createdAt: 1 })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const pending = allInvites
+      .filter(inv => inv.status === 'sent')
+      .filter(inv => !respondedUserIds.has(String(inv.userId?._id || '')))
+      .slice(0, Math.max(0, 10 - recentResponses.length))
+      .map(inv => ({
+        id: String(inv._id),
+        respondent: { name: inv.userId?.name || 'Invited User', email: inv.userId?.email || '' },
+        submittedAt: inv.createdAt,
+        completionTime: 0,
+        sentiment: { label: 'neutral', score: 0 },
+        satisfactionLevel: '--',
+        status: 'Not Completed'
+      }));
+
+    const recentCombined = [...recentResponses, ...pending].slice(0, 10);
+
     return {
       survey,
       stats: {
@@ -297,7 +555,8 @@ exports.getSurveyDashboard = async (surveyId, creatorId) => {
         ...invitationStats
       },
       invitations: recentInvitations,
-      analysis, 
+      analysis,
+      recentResponses: recentCombined,
       lastUpdated: new Date()
     };
   } catch (error) {

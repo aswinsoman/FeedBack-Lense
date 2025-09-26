@@ -1,4 +1,3 @@
-// Dashboard functionality - Phase 6: Complete Implementation
 // Fetches and displays user's created surveys with real-time statistics
 
 import {
@@ -460,7 +459,7 @@ function navigateToTakeSurvey(surveyLink, invitationId) {
 function createSurveyCard(survey) {
     const card = document.createElement('div');
     card.className = 'survey-card';
-    card.setAttribute('data-survey-id', survey._id);
+    card.setAttribute('data-survey-id', survey.id || survey._id);
 
     // Calculate response rate
     const responseRate = survey.totalResponses > 0 && survey.maxResponses > 0
@@ -510,20 +509,20 @@ function createSurveyCard(survey) {
         </div>
         
         <div class="survey-actions">
-            <button class="btn btn-small btn-outline" onclick="viewSurvey('${survey._id}')">
-                <i class="fas fa-eye"></i> View
+            <button class="btn btn-small btn-outline" onclick="viewSurvey('${survey.id || survey._id}')">
+                <i class="fas fa-chart-bar"></i> Analytics
             </button>
-            <button class="btn btn-small btn-outline" onclick="editSurvey('${survey._id}')">
+            <button class="btn btn-small btn-outline" onclick="editSurvey('${survey.id || survey._id}')">
                 <i class="fas fa-edit"></i> Edit
             </button>
-            <button class="btn btn-small btn-outline" onclick="shareSurvey('${survey._id}')">
+            <button class="btn btn-small btn-outline" onclick="shareSurvey('${survey.id || survey._id}')">
                 <i class="fas fa-share"></i> Share
             </button>
             ${survey.isActive ?
-            `<button class="btn btn-small btn-outline red" onclick="deactivateSurvey('${survey._id}')">
+            `<button class="btn btn-small btn-outline red" onclick="deactivateSurvey('${survey.id || survey._id}')">
                     <i class="fas fa-pause"></i> Pause
                 </button>` :
-            `<button class="btn btn-small btn-primary" onclick="activateSurvey('${survey._id}')">
+            `<button class="btn btn-small btn-primary" onclick="activateSurvey('${survey.id || survey._id}')">
                     <i class="fas fa-play"></i> Activate
                 </button>`
         }
@@ -584,14 +583,9 @@ function showLoading(show) {
  * Phase 6: Survey action handlers
  */
 window.viewSurvey = function (surveyId) {
-    console.log('Viewing survey:', surveyId);
-    // Store survey ID and navigate to view page (when implemented)
-    sessionStorage.setItem('viewSurveyId', surveyId);
-    M.toast({
-        html: '<i class="fas fa-info-circle"></i> Survey view page coming soon!',
-        classes: 'info-toast',
-        displayLength: 3000
-    });
+    console.log('Viewing survey analytics:', surveyId);
+    // Navigate to the individual survey analytics page with proper survey ID
+    window.location.href = `survey-analytics.html?id=${surveyId}`;
 };
 
 window.editSurvey = function (surveyId) {

@@ -1,0 +1,5 @@
+questionId,questionText,type,options
+Q1,How satisfied are you with the course overall?,multiple-choice,Very Satisfied;Satisfied;Dissatisfied;Very Dissatisfied
+Q2,Please provide any feedback to improve the course.,text,
+Q3,Which teaching methods did you find most helpful?,multiple-choice,Lectures;Tutorials;Group Projects;Online Materials
+Q4,Would you recommend this course to a friend?,multiple-choice,Yes;No;Not Sure

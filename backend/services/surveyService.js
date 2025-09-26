@@ -1,6 +1,7 @@
 // Survey business logic: CSV processing, survey creation, data validation
 const Survey = require('../models/Survey');
 const Invitation = require('../models/Invitation');
+const Response = require('../models/Response');
 const User = require('../models/User');
 const activityService = require('./activityService'); // Add this at the top
 
@@ -12,7 +13,7 @@ exports.validateCsvData = (csvData) => {
     throw error;
   }
 
-  // Check required headers
+  // Check required headers (type/options are optional but supported)
   const firstRow = csvData[0];
   const requiredHeaders = ['questionId', 'questionText'];
   
@@ -45,10 +46,27 @@ exports.validateCsvData = (csvData) => {
       throw error;
     }
 
-    return {
+    const question = {
       questionId: row.questionId.toString().trim(),
       questionText: row.questionText.toString().trim()
     };
+
+    // Pass through optional type and options if provided by frontend CSV validator
+    if (row.type && typeof row.type === 'string') {
+      const normalizedType = row.type.toString().trim().toLowerCase();
+      if (['text', 'likert', 'multiple-choice'].includes(normalizedType)) {
+        question.type = normalizedType;
+      }
+    }
+    if (row.options) {
+      if (Array.isArray(row.options)) {
+        question.options = row.options.filter(Boolean).map(o => o.toString());
+      } else if (typeof row.options === 'string') {
+        question.options = row.options.split(';').map(o => o.trim()).filter(Boolean);
+      }
+    }
+
+    return question;
   });
 
   // Check for duplicate question IDs
@@ -136,10 +154,8 @@ exports.getUserCreatedSurveys = async (userId) => {
   const surveysWithStats = await Promise.all(
     surveys.map(async (survey) => {
       const invitationCount = await Invitation.countDocuments({ surveyId: survey._id });
-      const responseCount = await Invitation.countDocuments({ 
-        surveyId: survey._id, 
-        status: 'completed' 
-      });
+      // Use actual responses stored to compute total responses accurately
+      const responseCount = await Response.countDocuments({ surveyId: survey._id });
 
       return {
         id: survey._id,
@@ -187,4 +203,27 @@ exports.getSurveyById = async (surveyId, requesterId = null) => {
     updatedAt: survey.updatedAt,
     csvMetadata: survey.csvMetadata
   };
+};
+
+// Update survey end date
+exports.updateSurveyEndDate = async (surveyId, userId, endDate) => {
+  // Find the survey and verify ownership
+  const survey = await Survey.findById(surveyId);
+  
+  if (!survey) {
+    throw new Error('Survey not found');
+  }
+  
+  // Verify user is the creator
+  if (survey.creatorId.toString() !== userId.toString()) {
+    throw new Error('Unauthorized');
+  }
+  
+  // Update the end date
+  survey.endDate = endDate;
+  
+  // Save the survey (this will trigger the pre-save middleware)
+  const updatedSurvey = await survey.save();
+  
+  return updatedSurvey;
 };

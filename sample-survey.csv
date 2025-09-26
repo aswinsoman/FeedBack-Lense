@@ -1,6 +1,0 @@
-questionId,questionText,type,options
-Q1,How would you rate the course overall?,likert,
-Q2,What did you like most about the course?,text,
-Q3,Which format do you prefer for future courses?,multiple-choice,"Online;In-person;Hybrid"
-Q4,How likely are you to recommend this course?,likert,
-Q5,Any additional feedback or suggestions?,text,

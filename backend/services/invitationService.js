@@ -2,6 +2,7 @@
 const Invitation = require('../models/Invitation');
 const Survey = require('../models/Survey');
 const User = require('../models/User');
+const Response = require('../models/Response');
 const activityService = require('./activityService'); // Add at the top if not present
 
 // Send invitations to multiple users
@@ -373,7 +374,9 @@ exports.getInvitationStats = async (surveyId) => {
       totalInvitations: 0,
       completedInvitations: 0,
       pendingInvitations: 0,
-      responseRate: 0
+      responseRate: 0,
+      responseCount: 0,
+      completionRateResponses: 0
     };
   }
 
@@ -382,10 +385,18 @@ exports.getInvitationStats = async (surveyId) => {
     ? Math.round((result.completedInvitations / result.totalInvitations) * 100)
     : 0;
 
+  // Count actual responses stored for this survey (independent of invitation status)
+  const responseCount = await Response.countDocuments({ surveyId: objectId });
+  const completionRateResponses = result.totalInvitations > 0
+    ? Math.round((responseCount / result.totalInvitations) * 100)
+    : 0;
+
   return {
     totalInvitations: result.totalInvitations,
     completedInvitations: result.completedInvitations,
     pendingInvitations: result.pendingInvitations,
-    responseRate
+    responseRate,
+    responseCount,
+    completionRateResponses
   };
 };

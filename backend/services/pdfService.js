@@ -12,7 +12,16 @@ class PDFService {
     }
 
     async initBrowser() {
-        if (!this.browser) {
+        if (!this.browser || !this.browser.isConnected()) {
+            if (this.browser) {
+                try {
+                    await this.browser.close();
+                } catch (error) {
+                    console.warn('Error closing disconnected browser:', error.message);
+                }
+                this.browser = null;
+            }
+            
             this.browser = await puppeteer.launch({
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -23,8 +32,13 @@ class PDFService {
 
     async closeBrowser() {
         if (this.browser) {
-            await this.browser.close();
-            this.browser = null;
+            try {
+                await this.browser.close();
+            } catch (error) {
+                console.warn('Error closing browser:', error.message);
+            } finally {
+                this.browser = null;
+            }
         }
     }
 
@@ -381,7 +395,6 @@ class PDFService {
      * Generate PDF from survey data
      */
     async generateSurveyPDF(surveyId, creatorId) {
-        let browser = null;
         try {
             // Compile all data
             const reportData = await this.compileAnalyticsData(surveyId, creatorId);
@@ -390,7 +403,7 @@ class PDFService {
             const html = this.generateHTMLTemplate(reportData);
             
             // Initialize browser
-            browser = await this.initBrowser();
+            const browser = await this.initBrowser();
             const page = await browser.newPage();
             
             // Set content and generate PDF
@@ -429,10 +442,6 @@ class PDFService {
         } catch (error) {
             console.error('Error generating PDF:', error);
             throw new Error('PDF generation failed: ' + error.message);
-        } finally {
-            if (browser) {
-                await browser.close();
-            }
         }
     }
 
@@ -473,7 +482,6 @@ class PDFService {
             });
 
             await page.close();
-            await browser.close();
             
             return {
                 buffer: pdfBuffer,

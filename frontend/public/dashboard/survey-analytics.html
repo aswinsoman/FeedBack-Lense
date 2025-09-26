@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Analytics - FeedBack-Lense</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Custom CSS -->
+    <link href="../../css/dashboard.css" rel="stylesheet">
+    <link href="../../css/analytics.css" rel="stylesheet">
+</head>
+<body class="analytics-page">
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="../images/logo.png" alt="FeedbackLens Logo" class="logo-image">
+                    <div class="logo-text">
+                        <span class="logo-name">FeedbackLens</span>
+                        <span class="logo-tagline">TECHNOLOGY</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">
+                            <i class="fas fa-tachometer-alt nav-icon"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="create-survey.html" class="nav-link">
+                            <i class="fas fa-plus-circle nav-icon"></i>
+                            <span class="nav-text">Create Surveys</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="invitation.html" class="nav-link">
+                            <i class="fas fa-envelope nav-icon"></i>
+                            <span class="nav-text">Invitations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="analytics.html" class="nav-link">
+                            <i class="fas fa-chart-line nav-icon"></i>
+                            <span class="nav-text">Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <div class="breadcrumb-nav">
+                            <a href="index.html" class="breadcrumb-link">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <i class="fas fa-chevron-right breadcrumb-divider"></i>
+                            <span class="breadcrumb-current" id="surveyTitle">Survey Analytics</span>
+                        </div>
+                    </div>
+                    <div class="user-section">
+                        <div class="user-info">
+                            <i class="fas fa-bell notification-icon"></i>
+                            <div class="user-profile">
+                                <img src="../images/profile.png" alt="User Avatar" class="user-avatar">
+                                <div class="user-details">
+                                    <span class="user-name" id="userName">Loading...</span>
+                                    <span class="user-role">User</span>
+                                </div>
+                                <i class="fas fa-chevron-down" style="margin-left: 8px; font-size: 12px; color: #64748b;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Survey Analytics Content -->
+            <div class="survey-analytics-content">
+                <!-- Survey Info Card -->
+                <div class="survey-info-card">
+                    <div class="survey-info-header">
+                        <div class="survey-info-main">
+                            <h3 class="survey-info-title" id="surveyName">Loading...</h3>
+                            <p class="survey-description" id="surveyDescription">Fetching survey details...</p>
+                            <div class="survey-info-meta">
+                                <span class="survey-status" id="surveyStatusBadge">-</span>
+                                <span class="survey-created">Created: <span id="surveyCreated">-</span></span>
+                                <span class="survey-responses">Responses: <span id="surveyResponseCount">0</span></span>
+                                <span class="survey-end-date" id="surveyEndDateInfo">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span id="endDateStatus">No end date set</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="survey-info-actions">
+                            <button class="btn waves-effect waves-light end-date-btn" onclick="openEndDateModal()">
+                                <i class="fas fa-calendar-alt"></i> Set End Date
+                            </button>
+                            <button class="btn waves-effect waves-light refresh-btn" onclick="refreshSurveyAnalytics()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="btn waves-effect waves-light share-btn" onclick="exportToPDF()">
+                                <i class="fas fa-download"></i> Export PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Real-time Status -->
+                    <div class="real-time-status" id="realTimeStatus" role="status" aria-live="polite">
+                        <div class="status-indicator">
+                            <div class="status-dot" id="statusDot" aria-hidden="true"></div>
+                            <span class="status-text" id="statusText">Connecting...</span>
+                        </div>
+                        <span class="last-update" id="lastUpdate">Last update: Never</span>
+                        <span id="statusAnnouncer" aria-live="polite" class="visually-hidden"></span>
+                    </div>
+                </div>
+
+                <!-- Real-time Indicator -->
+                <div class="real-time-indicator" id="realTimeIndicator">
+                    <i class="fas fa-circle"></i>
+                    Live Updates Active
+                </div>
+
+                <!-- Key Metrics Grid -->
+                <div class="survey-metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon responses">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-content" id="totalResponsesWrapper">
+                            <h3 class="metric-value" id="totalResponses">0</h3>
+                            <p class="metric-label">Total Responses</p>
+                            <span class="metric-change metric-change-indicator" id="responsesChange">-</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon sentiment">
+                            <i class="fas fa-smile"></i>
+                        </div>
+                        <div class="metric-content" id="avgSentimentWrapper">
+                            <h3 class="metric-value" id="avgSentiment">0.0</h3>
+                            <p class="metric-label">Avg Sentiment</p>
+                            <span class="metric-change sentiment-label" id="sentimentLabel">neutral</span>
+                            <span class="metric-change-indicator"></span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon completion">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="metric-content" id="completionRateWrapper">
+                            <h3 class="metric-value" id="completionRate">0%</h3>
+                            <p class="metric-label">Completion Rate</p>
+                            <span class="metric-change metric-change-indicator" id="completionChange">-</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon time">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="metric-content" id="avgCompletionTimeWrapper">
+                            <h3 class="metric-value" id="avgCompletionTime">0s</h3>
+                            <p class="metric-label">Avg Time</p>
+                            <span class="metric-change metric-change-indicator" id="timeChange">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <!-- Response Timeline Chart -->
+                    <div class="chart-card full-width">
+                        <div class="chart-header">
+                            <h4 class="chart-title">Response Timeline</h4>
+                            <div class="chart-controls">
+                                <select id="timeRangeSelect" class="browser-default">
+                                    <option value="24h">Last 24 Hours</option>
+                                    <option value="7d" selected>Last 7 Days</option>
+                                    <option value="30d">Last 30 Days</option>
+                                    <option value="all">All Time</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Sentiment Distribution Chart -->
+                    <div class="chart-card half-width" id="sentimentCard">
+                        <div class="chart-header">
+                            <h4 class="chart-title">Sentiment Distribution</h4>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="sentimentChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top Keywords (moved up to sit beside Sentiment) -->
+                    <div class="chart-card half-width" id="topKeywordsCard">
+                        <div class="chart-header">
+                            <h4 class="chart-title"><i class="fas fa-tags"></i> Top Keywords</h4>
+                            <span class="insights-count" id="keywordCount">0 keywords</span>
+                        </div>
+                        <div class="keywords-cloud" id="keywordsCloud"></div>
+                    </div>
+                </div>
+
+                <!-- Question Scores Chart (NEW) -->
+                <div class="chart-card full-width" id="questionScoresCard">
+                    <div class="chart-header">
+                        <div class="chart-header-main">
+                            <h4 class="chart-title"><i class="fas fa-chart-bar"></i> Question Scores</h4>
+                            <div class="chart-subtitle" id="questionScoresSubtitle">Average score per question (0-10)</div>
+                        </div>
+                        <span class="insights-count" id="questionScoresInfo">Loading...</span>
+                    </div>
+                    <div class="chart-container" style="height:320px;">
+                        <canvas id="questionScoresChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Insights Section (AI Summary only now) -->
+                <div class="insights-section" style="grid-template-columns: 1fr;">
+                    <div class="insights-card">
+                        <div class="insights-header">
+                            <h4 class="insights-title">
+                                <i class="fas fa-brain"></i> Key Insights
+                            </h4>
+                            <button class="btn-small waves-effect generate-summary-btn" onclick="generateSummary()">
+                                <i class="fas fa-magic"></i> Regenerate Insights
+                            </button>
+                        </div>
+                        <div class="ai-summary" id="aiSummary">
+                            <div class="loading-summary">
+                                <div class="preloader-wrapper small active">
+                                    <div class="spinner-layer spinner-green-only">
+                                        <div class="circle-clipper left">
+                                            <div class="circle"></div>
+                                        </div>
+                                        <div class="gap-patch">
+                                            <div class="circle"></div>
+                                        </div>
+                                        <div class="circle-clipper right">
+                                            <div class="circle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span>Generating AI summary...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Responses Table -->
+                <div class="responses-table-card">
+                    <div class="table-header">
+                        <h4 class="table-title">
+                            <i class="fas fa-list"></i> Recent Responses
+                        </h4>
+                        <div class="table-actions">
+                            <button class="btn-small waves-effect view-all-btn" onclick="viewAllResponses()">
+                                <i class="fas fa-eye"></i> View All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="responses-table-container">
+                        <table class="responses-table" id="responsesTable">
+                            <thead>
+                                <tr>
+                                    <th>User email</th>
+                                    <th>Satisfaction Level</th>
+                                    <th>Time Spent</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="responsesTableBody">
+                                <tr class="loading-row">
+                                    <td colspan="5" class="center-align">
+                                        <div class="preloader-wrapper small active">
+                                            <div class="spinner-layer spinner-blue-only">
+                                                <div class="circle-clipper left">
+                                                    <div class="circle"></div>
+                                                </div>
+                                                <div class="gap-patch">
+                                                    <div class="circle"></div>
+                                                </div>
+                                                <div class="circle-clipper right">
+                                                    <div class="circle"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        Loading responses...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+                    <div class="loading-content">
+                        <div class="preloader-wrapper big active">
+                            <div class="spinner-layer spinner-blue-only">
+                                <div class="circle-clipper left">
+                                    <div class="circle"></div>
+                                </div>
+                                <div class="gap-patch">
+                                    <div class="circle"></div>
+                                </div>
+                                <div class="circle-clipper right">
+                                    <div class="circle"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="loading-text">Loading survey analytics...</p>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div class="error-state" id="errorState" style="display: none;">
+                    <div class="error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h4>Unable to Load Survey Analytics</h4>
+                    <p id="errorMessage">Failed to load survey analytics data. Please try again.</p>
+                    <button class="btn btn-primary waves-effect" onclick="loadSurveyAnalytics()">
+                        <i class="fas fa-redo"></i> Retry
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- End Date Modal -->
+    <div id="endDateModal" class="modal">
+        <div class="modal-content">
+            <h4><i class="fas fa-calendar-alt"></i> Set Survey End Date</h4>
+            <p>Set an end date for your survey. The survey will automatically close when this date is reached.</p>
+            
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="text" id="endDatePicker" class="datepicker">
+                    <label for="endDatePicker">End Date</label>
+                    <span class="helper-text">Select when this survey should close</span>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="text" id="endTimePicker" class="timepicker">
+                    <label for="endTimePicker">End Time</label>
+                    <span class="helper-text">Select what time the survey should close</span>
+                </div>
+            </div>
+            
+            <!-- Current End Date Info -->
+            <div class="current-end-date" id="currentEndDateInfo" style="display: none;">
+                <div class="card-panel blue lighten-5">
+                    <span class="blue-text text-darken-2">
+                        <i class="fas fa-info-circle"></i>
+                        Current end date: <strong id="currentEndDate">-</strong>
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="modal-close waves-effect waves-light btn-flat">Cancel</button>
+            <button class="waves-effect waves-light btn red" id="removeEndDateBtn" onclick="removeEndDate()" style="display: none;">
+                <i class="fas fa-trash"></i> Remove End Date
+            </button>
+            <button class="waves-effect waves-light btn" id="saveEndDateBtn" onclick="saveEndDate()">
+                <i class="fas fa-save"></i> Save End Date
+            </button>
+        </div>
+    </div>
+
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <!-- Load our modules -->
+    <script type="module" src="../../js/api/api.js"></script>
+    <script type="module" src="../../js/analytics/analytics-utils.js"></script>
+    <script type="module" src="../../js/analytics/pdf-export.js"></script>
+    <script type="module" src="../../js/analytics/survey-analytics.js"></script>
+</body>
+</html>

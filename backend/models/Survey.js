@@ -22,6 +22,18 @@ const surveySchema = new mongoose.Schema({
       type: String, 
       required: true, 
       maxlength: 200 
+    },
+    // Optional question type for rendering (defaults to 'text' on frontend if absent)
+    type: {
+      type: String,
+      enum: ['text', 'likert', 'multiple-choice'],
+      required: false
+    },
+    // Optional options for multiple-choice questions
+    options: {
+      type: [String],
+      required: false,
+      default: undefined
     }
   }],
   csvMetadata: {
@@ -42,6 +54,10 @@ const surveySchema = new mongoose.Schema({
     type: String, 
     enum: ['active', 'closed'], 
     default: 'active' 
+  },
+  endDate: {
+    type: Date,
+    default: null // Optional end date for surveys
   }
 }, { 
   timestamps: true 
@@ -68,7 +84,35 @@ surveySchema.pre('save', function(next) {
     return next(error);
   }
   
+  // Auto-close survey if end date has passed
+  if (this.endDate && new Date() > this.endDate && this.status === 'active') {
+    console.log(`Auto-closing survey ${this._id} - end date reached`);
+    this.status = 'closed';
+  }
+  
   next();
+});
+
+// Method to check if survey is expired
+surveySchema.methods.isExpired = function() {
+  return this.endDate && new Date() > this.endDate;
+};
+
+// Method to get effective status (considering end date)
+surveySchema.methods.getEffectiveStatus = function() {
+  if (this.isExpired()) {
+    return 'expired';
+  }
+  return this.status;
+};
+
+// Virtual for days remaining until end date
+surveySchema.virtual('daysRemaining').get(function() {
+  if (!this.endDate) return null;
+  const now = new Date();
+  const timeDiff = this.endDate - now;
+  const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  return daysDiff > 0 ? daysDiff : 0;
 });
 
 module.exports = mongoose.model('Survey', surveySchema);
