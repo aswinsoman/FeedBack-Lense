@@ -2147,7 +2147,7 @@ function handleInviteParticipants(surveyData) {
     
     // Initialize invitation functionality after a short delay to ensure DOM is ready
     setTimeout(() => {
-        if (typeof InvitationApp !== 'undefined') {
+        if (typeof InvitationApp !== 'undefined' && !window.invitationApp) {
             window.invitationApp = new InvitationApp();
         }
     }, 100);
