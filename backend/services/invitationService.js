@@ -61,20 +61,19 @@ exports.sendInvitations = async ({ surveyId, creatorId, userEmails }) => {
           };
         }
 
-        // Check for existing invitation  Movini
-        const existingInvitation = await Invitation.findOne({
-          surveyId,
-          userId: user._id
-        });
-
-        if (existingInvitation) {
-          console.log(`Duplicate invitation attempt for email: ${email}, surveyId: ${surveyId}, userId: ${user._id}`);
-          return {
-            email,
-            success: false,
-            error: 'User already invited to this survey'
-          };
-        }
+        // // Check for existing invitation
+        // const existingInvitation = await Invitation.findOne({
+        //   surveyId,
+        //   userId: user._id
+        // });
+        //
+        // if (existingInvitation) {
+        //   return {
+        //     email,
+        //     success: false,
+        //     error: 'User already invited to this survey'
+        //   };
+        // }
 
 
 
@@ -102,20 +101,7 @@ exports.sendInvitations = async ({ surveyId, creatorId, userEmails }) => {
           recipientName: user.name
         };
 
-        //Movini
       } catch (error) {
-        console.log(`Error creating invitation for email: ${email}, error:`, error);
-        
-        // Handle MongoDB duplicate key error (11000)
-        if (error.code === 11000) {
-          console.log(`Duplicate key error for email: ${email}, surveyId: ${surveyId}, userId: ${user._id}`);
-          return {
-            email,
-            success: false,
-            error: 'User already invited to this survey'
-          };
-        }
-        
         return {
           email,
           success: false,
@@ -157,7 +143,6 @@ exports.getUserReceivedInvitationsList = async (userId) => {
       id: invitation._id,
       surveyTitle: invitation.surveyId?.title || 'Unknown Survey',
       creatorName: invitation.creatorId?.name || 'Unknown Creator',
-      creatorEmail: invitation.creatorId?.email || 'Unknown Email',
       status: invitation.status,
       createdAt: invitation.createdAt,
       completedAt: invitation.completedAt,
@@ -187,7 +172,6 @@ exports.getUserReceivedInvitationsListFromUser = async (userId) => {
       id: invitation._id,
       surveyTitle: invitation.surveyId?.title || 'Unknown Survey',
       creatorName: invitation.creatorId?.name || 'Unknown Creator',
-      creatorEmail: invitation.creatorId?.email || 'Unknown Email',
       status: invitation.status,
       createdAt: invitation.createdAt,
       completedAt: invitation.completedAt,

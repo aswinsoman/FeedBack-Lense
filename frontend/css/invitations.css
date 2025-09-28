@@ -194,23 +194,11 @@ body {
     padding: 10px 0 !important;
     width: 100%;
     color: #2c3e50;
-    text-decoration: none !important;
-    text-shadow: none !important;
-    -webkit-text-decoration: none !important;
-    -webkit-text-shadow: none !important;
 }
 
 .search-input:focus {
     background: transparent !important;
     box-shadow: none !important;
-}
-
-.search-input:not(:placeholder-shown) {
-    color: #2c3e50 !important;
-    text-decoration: none !important;
-    text-shadow: none !important;
-    -webkit-text-decoration: none !important;
-    -webkit-text-shadow: none !important;
 }
 
 .search-input::placeholder {

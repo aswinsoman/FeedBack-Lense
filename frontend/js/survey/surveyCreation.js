@@ -50,166 +50,16 @@ function setupPeriodicAuthCheck() {
 }
 
 function initializeSurveyCreation() {
-    // Check for URL parameters to handle share functionality
-    const urlParams = new URLSearchParams(window.location.search);
-    const surveyId = urlParams.get('surveyId');
-    const step = urlParams.get('step');
-    
     // Initialize survey creation components
     setupFileUpload();
     setupEventListeners();
-    
-    // If coming from share button, show invitation step directly
-    if (surveyId && step === 'invite') {
-        handleShareInvitation(surveyId);
-    } else {
     showStep(1);
-    }
     
     // Load user profile for header display
     loadUserProfile();
     
     // Phase 5: Setup periodic authentication check (every 5 minutes)
     setupPeriodicAuthCheck();
-}
-
-/**
- * Handle share invitation functionality
- */
-async function handleShareInvitation(surveyId) {
-    console.log('Handling share invitation for survey:', surveyId);
-    
-    try {
-        // Get survey data to display title
-        const { getSurveyDashboard } = await import('../api/api.js');
-        const result = await getSurveyDashboard(surveyId);
-        
-        if (result.success && result.data) {
-            const survey = result.data;
-            
-            // Update the page title and content for sharing
-            updatePageForSharing(survey);
-            
-            // Set the survey ID in the hidden element
-            const surveyIdElement = document.getElementById('surveyId');
-            if (surveyIdElement) {
-                surveyIdElement.textContent = surveyId;
-                surveyIdElement.setAttribute('data-full-id', surveyId);
-            }
-            
-            // Show the invitation step
-            showStep(5);
-            
-            // Initialize invitation functionality
-            initializeInvitationForSharing(surveyId);
-        } else {
-            console.error('Failed to load survey data:', result);
-            M.toast({
-                html: '<i class="fas fa-exclamation-triangle"></i> Failed to load survey data',
-                classes: 'error-toast',
-                displayLength: 3000
-            });
-        }
-    } catch (error) {
-        console.error('Error handling share invitation:', error);
-        M.toast({
-            html: '<i class="fas fa-exclamation-triangle"></i> Error loading survey',
-            classes: 'error-toast',
-            displayLength: 3000
-        });
-    }
-}
-
-/**
- * Update page content for sharing mode
- */
-function updatePageForSharing(survey) {
-    // Update page title
-    document.title = `Share Survey - ${survey.title}`;
-    
-    // Update welcome section
-    const welcomeTitle = document.querySelector('.welcome-title');
-    if (welcomeTitle) {
-        welcomeTitle.textContent = `Share Survey`;
-    }
-    
-    const welcomeSubtitle = document.querySelector('.welcome-subtitle');
-    if (welcomeSubtitle) {
-        welcomeSubtitle.textContent = 'Invite participants to take this survey';
-    }
-    
-    // Hide navigation buttons for sharing mode
-    const navButtons = document.querySelector('.step-navigation');
-    if (navButtons) {
-        navButtons.style.display = 'none';
-    }
-    
-    // Add custom navigation for sharing
-    addSharingNavigation(survey);
-}
-
-/**
- * Add custom navigation for sharing mode
- */
-function addSharingNavigation(survey) {
-    const invitationContainer = document.querySelector('.invite-container');
-    if (invitationContainer) {
-        // Add navigation buttons at the bottom
-        const navDiv = document.createElement('div');
-        navDiv.className = 'sharing-navigation';
-        navDiv.style.cssText = `
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-        `;
-        
-        // navDiv.innerHTML = `
-        //     <button class="btn btn-outline" onclick="goBackToSurvey('${survey._id || survey.id}')">
-        //         <i class="fas fa-arrow-left"></i> Back to Survey
-        //     </button>
-        //     <button class="btn btn-primary" onclick="goToDashboard()">
-        //         <i class="fas fa-tachometer-alt"></i> Return to Dashboard
-        //     </button>
-        // `;
-        
-        invitationContainer.appendChild(navDiv);
-    }
-}
-
-/**
- * Initialize invitation functionality for sharing
- */
-function initializeInvitationForSharing(surveyId) {
-    // Import and initialize the invitation app
-    import('../survey/invite.js').then(() => {
-        // Small delay to ensure DOM is ready
-        setTimeout(() => {
-            // The InvitationApp class is available globally
-            if (window.InvitationApp) {
-                window.invitationApp = new window.InvitationApp();
-            } else {
-                console.error('InvitationApp class not found');
-            }
-        }, 100);
-    }).catch(error => {
-        console.error('Error loading invitation module:', error);
-    });
-}
-
-/**
- * Go back to survey view
- */
-function goBackToSurvey(surveyId) {
-    window.location.href = `index.html#survey-${surveyId}`;
-}
-
-/**
- * Go to dashboard
- */
-function goToDashboard() {
-    window.location.href = 'index.html';
 }
 
 /**
