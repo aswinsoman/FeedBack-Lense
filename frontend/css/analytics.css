@@ -2,7 +2,7 @@
 /* Author: F6 Implementation */
 
 /* Analytics Layout */
-.analytics-content {
+.analytics-main-content {
     padding: 0;
     max-width: none;
     margin: 0;
@@ -1425,6 +1425,62 @@ body.analytics-page h5 {
     max-width: 400px;
 }
 
+/* Search Bar - From Invitations Page */
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    padding: 0 12px;
+    margin-left: 8px;
+    min-width: 200px;
+    transition: all 0.2s;
+}
+
+.search-wrapper:focus-within {
+    border-color: #4285f4;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+}
+
+.search-icon {
+    color: #6c757d;
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.search-input {
+    border: none !important;
+    background: transparent !important;
+    outline: none !important;
+    font-size: 15px;
+    padding: 10px 0 !important;
+    color: #6c757d !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    -webkit-text-decoration: none !important;
+    -webkit-text-shadow: none !important;
+}
+
+.search-input:focus {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.search-input:not(:placeholder-shown) {
+    color: #2c3e50 !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    -webkit-text-decoration: none !important;
+    -webkit-text-shadow: none !important;
+}
+
+.search-input::placeholder {
+    color: #6c757d;
+}
+
+/* Legacy styles for backward compatibility */
 .recent-completions-section .input-field {
     position: relative;
 }

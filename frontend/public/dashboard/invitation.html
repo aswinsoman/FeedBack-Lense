@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="../../css/invitations.css">
 </head>
 
-<body class="grey lighten-5">
+<body class="grey lighten-5 invitations-page">
     <!-- Navigation Sidebar -->
     <div class="dashboard-container">
         <aside class="sidebar">
@@ -41,7 +41,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="create-survey.html" class="nav-link">
+                        <a href="my-surverys.html" class="nav-link">
                             <i class="fas fa-plus-circle nav-icon"></i>
                             <span class="nav-text">Create Surveys</span>
                         </a>
@@ -84,26 +84,17 @@
             <div class="survey-creation-content">
                 <div class="welcome-section">
                     <h2 class="welcome-title">Invitations</h2>
-                    <p class="welcome-subtitle">Here's what's happening with your surveys today.</p>
+                    <p class="welcome-subtitle">Here’s Your Received Survey Invitations</p>
                 </div>
 
                 <div class="invitations-container">
                     <div class="header-section">
                         <h1 class="header-title">Latest Invitations</h1>
                         <div class="header-actions">
-                            <button class="action-btn" title="Download">
-                                <i class="material-icons">file_download</i>
-                            </button>
-                            <button class="action-btn" title="Delete">
-                                <i class="material-icons">delete</i>
-                            </button>
-                            <button class="action-btn" title="Mark as Read">
-                                <i class="material-icons">mark_email_read</i>
-                            </button>
                             <div class="search-wrapper">
                                 <i class="material-icons search-icon">search</i>
-                                <input type="text" class="search-input browser-default" placeholder="Search..."
-                                    id="invitation-search">
+                                <input type="text" class="search-input browser-default" placeholder="Search invitations..."
+                                    id="invitation-search" spellcheck="false" autocomplete="off">
                             </div>
                         </div>
                     </div>

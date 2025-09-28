@@ -1,20 +1,17 @@
 // invitation.js
-import {getReceivedInvitations} from '../api/api.js';
+import { getReceivedInvitations, sendInvitations } from '../api/api.js';
 
 class InvitationApp {
   constructor() {
-    this.invitations = [
-     
-    ];
-    this.chipEmails = [];
+    this.invitations = [];
     this.surveys = {}; // add this to prevent undefined errors
+    this.lastToastTime = 0; // Prevent rapid toast messages
     this.init();
   }
 
   init() {
     console.log("Initializing Invitations UI...");
     this.renderInvitations();
-    this.renderChips();
     this.setupEventListeners();
     this.autoApproveDemo();
     this.renderInvitationsList(); // initial render
@@ -25,23 +22,8 @@ class InvitationApp {
     const emailInput = document.getElementById("emailInput");
     const sendBtn = document.getElementById("sendBtn");
 
-    if (emailInput) {
-      emailInput.addEventListener("keydown", (e) => {
-        if (["Enter", ",", ";", " "].includes(e.key)) {
-          e.preventDefault();
-          this.addEmailsToChipsFromInput();
-        }
-      });
-
-      emailInput.addEventListener("blur", () => {
-        if (emailInput.value.trim() !== "") {
-          this.addEmailsToChipsFromInput();
-        }
-      });
-    }
-
     if (sendBtn) {
-      sendBtn.addEventListener("click", () => this.addInvitationsFromChips());
+      sendBtn.addEventListener("click", () => this.sendInvitation());
     }
 
     // Optional: search input listener
@@ -51,154 +33,156 @@ class InvitationApp {
     }
   }
 
-  // ======== Chips ======== //
-  renderChips() {
-    const chipsWrapper = document.getElementById("chipsWrapper");
-    if (!chipsWrapper) return;
-
-    chipsWrapper.innerHTML = "";
-    this.chipEmails.forEach((email, idx) => {
-      const chip = document.createElement("div");
-      chip.className = "chip-email";
-      chip.innerHTML = `
-        ${email}
-        <button class="remove-chip" data-idx="${idx}" title="Remove">
-          <i class="fas fa-times" style="font-size:14px;"></i>
-        </button>
-      `;
-      chipsWrapper.appendChild(chip);
-    });
-
-    chipsWrapper.querySelectorAll(".remove-chip").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const idx = parseInt(btn.getAttribute("data-idx"));
-        this.chipEmails.splice(idx, 1);
-        this.renderChips();
-      });
-    });
-  }
-
-  parseEmails(input) {
-    return input
-        .split(/[\s,;]+/)
-        .map((e) => e.trim())
-        .filter((e) => e.length > 0 && this.validateEmail(e));
-  }
-
+  //  Email Validation
   validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  addEmailsToChipsFromInput() {
+  //  Send Invitation 
+  async sendInvitation() {
+    // Get email from input field
     const input = document.getElementById("emailInput");
-    if (!input) return;
-
-    const emails = this.parseEmails(input.value);
-    let added = 0,
-        skipped = 0;
-
-    emails.forEach((email) => {
-      if (!this.chipEmails.some((e) => e.toLowerCase() === email.toLowerCase())) {
-        this.chipEmails.push(email);
-        added++;
-      } else {
-        skipped++;
-      }
-    });
-
-    this.renderChips();
-    input.value = "";
-
-    if (added > 0) this.showToast(`${added} email${added > 1 ? "s" : ""} added.`, "blue");
-    if (skipped > 0)
-      this.showToast(`${skipped} duplicate email${skipped > 1 ? "s were" : " was"} skipped.`, "orange");
-  }
-
-  // ======== Invitations ======== //
-  async addInvitationsFromChips() {
-    // Only check for empty chipEmails before sending
-    // Only show error if there are invalid emails, not just empty
-    if (!this.chipEmails || this.chipEmails.length === 0) {
-      const input = document.getElementById("emailInput");
-      if (input && input.value.trim() !== "") {
-        // Check for invalid email formats in the input
-        const emails = input.value.split(/[\s,;]+/).map(e => e.trim()).filter(e => e.length > 0);
-        const invalids = emails.filter(e => !this.validateEmail(e));
-        if (invalids.length > 0) {
-          this.showToast(
-            `Error: ${invalids.length > 1 ? "Some emails are" : "This email is"} in incorrect format.`,
-            "red"
-          );
-        } else {
-          this.showToast("Please enter at least one valid email address before sending invitations.", "red");
-        }
-      } else {
-        this.showToast("Please enter at least one email address before sending invitations.", "red");
-      }
+    if (!input) {
+      this.showToast("Email input not found. Please refresh the page.", "red");
       return;
     }
 
-    // Show a loading/success mode UI when sending invitations
-    const sendBtn = document.getElementById("sendInvitesBtn");
+    const email = input.value.trim();
+
+    // Check if email is provided
+    if (!email) {
+      this.showToast("Please enter an email address before sending invitation.", "red");
+      return;
+    }
+
+    // Validate email format
+    if (!this.validateEmail(email)) {
+      this.showToast("Please enter a valid email address.", "red");
+      return;
+    }
+
+    // Show loading state
+    const sendBtn = document.getElementById("sendBtn");
     if (sendBtn) {
       sendBtn.disabled = true;
       sendBtn.classList.add("loading");
       sendBtn.innerHTML = `<span class="spinner"></span> Sending...`;
     }
 
+    // Get survey ID
     const surveyIdElement = document.getElementById('surveyId');
     if (!surveyIdElement) {
       this.showToast("Survey ID not found. Please refresh the page.", "red");
+      if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.classList.remove("loading");
+        sendBtn.innerHTML = "Send Invitation";
+      }
       return;
     }
 
     const surveyId = surveyIdElement.getAttribute('data-full-id') || surveyIdElement.textContent;
-    console.log('Survey ID:', surveyId);
-
-    let added = 0, skipped = 0; // Move declaration here for scope
 
     try {
-      const result = await window.sendInvitations(surveyId, this.chipEmails);
+      // Send invitation
+      const result = await sendInvitations(surveyId, [email]);
 
-      if (result.success) {
-        // Invitations delivered successfully
-        this.chipEmails.forEach((email) => {
-          if (!this.invitations.some((inv) => inv.email.toLowerCase() === email.toLowerCase())) {
-            this.invitations.push({ email, status: "pending" });
-            added++;
-          } else {
-            skipped++;
-          }
-        });
-
-        this.renderInvitations();
-        this.renderInvitationsList();
-        this.chipEmails = [];
-        this.renderChips();
-
-        // Always show success message in green if delivered
-        this.showToast(`Invitation${added !== 1 ? "s" : ""} sent successfully!`, "green");
-        if (skipped > 0) {
-          this.showToast(`${skipped} duplicate email${skipped > 1 ? "s were" : " was"} skipped.`, "orange");
-        }
-      } else {
-        // If result.success is false, but no error, treat as partial success (e.g., all were duplicates)
-        if (result.error) {
-          this.showToast(result.error, "red");
-        } else if (result.skipped && result.skipped > 0) {
-          this.showToast(`${result.skipped} duplicate email${result.skipped > 1 ? "s were" : " was"} skipped.`, "orange");
-        } else {
-          this.showToast("No invitations were sent. Please check the emails and try again.", "red");
-        }
+      // Restore button state
+      if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.classList.remove("loading");
+        sendBtn.innerHTML = "Send Invitation";
       }
+
+      console.log('Full API result:', result);
+
+      // Check if the API call was successful
+      if (!result.success) {
+        console.log('API call failed with error:', result.error);
+        this.showToast(result.error || "Failed to send invitation. Please try again.", "red");
+        return;
+      }
+
+      // Process the result and show appropriate message
+      this.handleInvitationResult(result, email);
+
     } catch (error) {
-      console.error('Error sending invitations:', error);
-      // If some invitations were added before the error, show success for those
-      if (added > 0) {
-        this.showToast(`Invitation${added !== 1 ? "s" : ""} sent successfully!`, "green");
-      } else {
-        this.showToast("Failed to send invitations. Please try again.", "red");
+      console.error('Error sending invitation:', error);
+
+      // Restore button state
+      if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.classList.remove("loading");
+        sendBtn.innerHTML = "Send Invitation";
       }
+
+      this.showToast("Failed to send invitation. Please try again.", "red");
+    }
+  }
+
+  // Handle invitation result and show appropriate message
+  handleInvitationResult(result, email) {
+    console.log('Processing invitation result:', result);
+    console.log('Result structure:', {
+      success: result.success,
+      data: result.data,
+      error: result.error
+    });
+
+    // Check if API call was successful
+    if (!result.success) {
+      console.log('API call failed:', result.error);
+      this.showToast(result.error || "Failed to send invitation. Please try again.", "red");
+      return;
+    }
+
+    // Check if we have results - try different possible structures
+    let individualResults = null;
+
+    if (result.data && result.data.results) {
+      // Standard structure: result.data.results
+      individualResults = result.data.results;
+    } else if (result.data && Array.isArray(result.data)) {
+      // Direct array structure
+      individualResults = result.data;
+    } else if (result.results) {
+      // Results at top level
+      individualResults = result.results;
+    } else {
+      console.log('Invalid response structure:', result);
+      this.showToast("Invalid response from server. Please try again.", "red");
+      return;
+    }
+
+    console.log('Using individual results:', individualResults);
+    const emailResult = individualResults.find(r => r.email === email);
+
+    console.log('Individual results:', individualResults);
+    console.log('Email result for', email, ':', emailResult);
+
+    if (!emailResult) {
+      console.log('No specific result found for email:', email);
+      this.showToast("No response received for this email. Please try again.", "red");
+      return;
+    }
+
+    // Handle the specific result
+    if (emailResult.success) {
+      // Success case
+      this.invitations.push({ email, status: "pending" });
+      this.renderInvitations();
+      this.renderInvitationsList();
+
+      // Clear input field
+      const input = document.getElementById("emailInput");
+      if (input) input.value = "";
+
+      // Show success message
+      this.showToast("Invitation sent successfully!", "green");
+    } else {
+      // Error case - show specific error message
+      console.log('Email invitation failed:', emailResult.error);
+      this.showToast(emailResult.error || "Failed to send invitation. Please try again.", "red");
     }
   }
 
@@ -279,8 +263,8 @@ class InvitationApp {
       let filtered = this.invitations;
       if (searchVal) {
         filtered = this.invitations.filter(inv =>
-            (inv.surveyTitle && inv.surveyTitle.toLowerCase().includes(searchVal)) ||
-            (inv.creatorName && inv.creatorName.toLowerCase().includes(searchVal))
+          (inv.surveyTitle && inv.surveyTitle.toLowerCase().includes(searchVal)) ||
+          (inv.creatorName && inv.creatorName.toLowerCase().includes(searchVal))
         );
       }
 
@@ -328,16 +312,31 @@ class InvitationApp {
         <div class="invitation-meta">
           <div class="expiry-info">${expiryText}</div>
           <div class="survey-status">Survey: ${inv.surveyStatus}</div>
-          <button class="take-survey-btn" data-surveylink="${inv.surveyLink}" data-invitationid="${inv.id}">
-            ${inv.status === 'completed' ? 'View Results' : 'Take Survey'}
+          
+
+
+         <button class="take-survey-btn ${ (inv.surveyStatus === 'completed' || inv.status === 'completed') ? 'disabled-btn' : '' }" 
+            data-surveylink="${inv.surveyLink}" 
+            data-invitationid="${inv.id}"
+            ${(inv.surveyStatus === 'completed' || inv.status === 'completed') ? 'disabled' : ''}>
+            ${(inv.surveyStatus === 'completed' || inv.status === 'completed') ? 'Completed' : 'Take Survey'}
           </button>
         </div>
       `;
         list.appendChild(item);
       });
 
+      // document.querySelectorAll('.take-survey-btn').forEach(btn => {
+      //   btn.addEventListener('click', (e) => {
+      //     const surveyLink = e.target.getAttribute('data-surveylink');
+      //     const invitationId = e.target.getAttribute('data-invitationid');
+      //     this.navigateToTakeSurvey(surveyLink, invitationId);
+      //   });
+      // });
+
       document.querySelectorAll('.take-survey-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
+          if (btn.disabled) return; // stop completed ones
           const surveyLink = e.target.getAttribute('data-surveylink');
           const invitationId = e.target.getAttribute('data-invitationid');
           this.navigateToTakeSurvey(surveyLink, invitationId);
@@ -354,17 +353,17 @@ class InvitationApp {
     console.log('Navigate to survey:', surveyId, 'invitation:', invitationId);
     // implement actual navigation logic here
   }
-  
+
   // User profile handling
   async loadUserProfile() {
     try {
       const { getUserProfile } = await import('../api/api.js');
       const result = await getUserProfile();
-      
+
       if (result.success && result.data) {
         // Update user display with profile data
         this.updateUserDisplay(result.data);
-        
+
         // Initialize dropdown after profile is loaded
         this.initializeUserDropdown();
       } else {
@@ -374,23 +373,23 @@ class InvitationApp {
       console.error('Error loading user profile:', error);
     }
   }
-  
+
   updateUserDisplay(user) {
     const userNameElement = document.getElementById('userName');
     if (userNameElement && user.name) {
       userNameElement.textContent = user.name;
     }
-    
+
     // Store user data globally for dropdown
     window.currentUser = user;
   }
-  
+
   initializeUserDropdown() {
     const userProfile = document.querySelector('.user-profile');
     if (userProfile) {
       userProfile.style.cursor = 'pointer';
       userProfile.addEventListener('click', () => this.toggleUserDropdown());
-      
+
       // Close dropdown when clicking outside
       document.addEventListener('click', (e) => {
         if (!userProfile.contains(e.target)) {
@@ -399,7 +398,7 @@ class InvitationApp {
       });
     }
   }
-  
+
   toggleUserDropdown() {
     const existingDropdown = document.querySelector('.user-dropdown');
     if (existingDropdown) {
@@ -408,11 +407,11 @@ class InvitationApp {
       this.showUserDropdown();
     }
   }
-  
+
   showUserDropdown() {
     const userProfile = document.querySelector('.user-profile');
     if (!userProfile) return;
-    
+
     const dropdown = document.createElement('div');
     dropdown.className = 'user-dropdown';
     dropdown.innerHTML = `
@@ -433,13 +432,13 @@ class InvitationApp {
         </a>
       </div>
     `;
-    
+
     userProfile.appendChild(dropdown);
-    
+
     // Add show class for animation
     setTimeout(() => dropdown.classList.add('show'), 10);
   }
-  
+
   closeUserDropdown() {
     const dropdown = document.querySelector('.user-dropdown');
     if (dropdown) {
@@ -447,15 +446,15 @@ class InvitationApp {
       setTimeout(() => dropdown.remove(), 200);
     }
   }
-  
+
   async handleLogout() {
     try {
       const { clearToken } = await import('../lib/lib.js');
-      
+
       // Clear authentication tokens
       clearToken();
       sessionStorage.clear();
-      
+
       // Show logout message
       if (window.M && window.M.toast) {
         M.toast({
@@ -466,7 +465,7 @@ class InvitationApp {
       } else {
         this.showToast('Logged out successfully', 'green');
       }
-      
+
       // Redirect to login after a brief delay
       setTimeout(() => {
         window.location.href = '../auth/signin.html';
@@ -489,6 +488,18 @@ class InvitationApp {
   }
 
   showToast(message, type = "info") {
+    // Prevent rapid toast messages (debounce)
+    const now = Date.now();
+    if (now - this.lastToastTime < 1000) {
+      console.log('Toast debounced - too soon after last toast');
+      return;
+    }
+    this.lastToastTime = now;
+
+    // Remove any existing toasts to prevent overlap
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+
     const toast = document.createElement("div");
     toast.className = `toast-notification toast-${type}`;
     toast.textContent = message;
