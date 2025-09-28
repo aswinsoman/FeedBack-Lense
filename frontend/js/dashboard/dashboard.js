@@ -1,13 +1,20 @@
 // Fetches and displays user's created surveys with real-time statistics
 
-import {
+import { 
     getAuthToken,
     getDashboardStats,
     getReceivedInvitations,
     getReceivedInvitationsFromUser,
     getUserSurveys,
     getUserProfile,
-    requireAuth
+    requireAuth,
+    getDashboardPollingStats,
+    getCrossSurveyAggregationAPI,
+    getUserActivityFeed,
+    getSurveyActivityFeed,
+    getSurveyInvitationStats,
+    getSurveyInvitationsList,
+    updateSurveyStatusAPI
 } from '../api/api.js';
 import { clearToken } from '../lib/lib.js';
 
@@ -17,6 +24,8 @@ let dashboardData = {
     stats: {},
     isLoading: false
 };
+
+let surveyComparisonData = [];
 
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Dashboard loaded - Phase 6: Complete Implementation');
@@ -87,6 +96,11 @@ function initializeDashboard() {
 
     // Initialize Materialize components
     M.AutoInit();
+
+   
+    DashboardRealTime.start();
+
+    configureStatLabels();
 }
 
 /**
@@ -152,6 +166,14 @@ function setupEventListeners() {
         });
     }
 
+    // Search functionality for invitations
+    const invitationSearchInput = document.getElementById('invitation-search');
+    if (invitationSearchInput) {
+        invitationSearchInput.addEventListener('input', function (e) {
+            filterInvitations(e.target.value);
+        });
+    }
+
     // Logout functionality
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
@@ -187,10 +209,19 @@ async function loadDashboardData() {
             getUserSurveys()
         ]);
 
-        // Handle stats data
-        if (statsResult.success && statsResult.data) {
-            dashboardData.stats = statsResult.data;
-            updateStats(statsResult.data);
+     
+        const statsData = statsResult?.data?.stats || statsResult?.data || null;
+        if (statsResult.success && statsData) {
+       
+            const normalizedStats = {
+                totalSurveys: statsData.totalSurveys ?? statsData.totalSurveysCreated ?? 0,
+                totalResponses: statsData.totalResponses ?? statsData.totalResponsesReceived ?? statsData.totalResponsesGiven ?? 0,
+                invitations: statsData.totalInvitationsSent ?? statsData.totalInvitationsReceived ?? 0,
+                completionRate: statsData.avgResponseRate ?? statsData.overallResponseRate ?? 0,
+                recentActivity: statsData.recentActivity ?? 0
+            };
+            dashboardData.stats = normalizedStats;
+            updateStats(normalizedStats);
         } else {
             console.warn('Failed to load dashboard stats:', statsResult);
             updateStats(getDefaultStats());
@@ -198,12 +229,36 @@ async function loadDashboardData() {
 
         // Handle surveys data
         if (surveysResult.success && surveysResult.data) {
-            dashboardData.surveys = surveysResult.data.surveys || surveysResult.data || [];
-            updateSurveysDisplay(dashboardData.surveys);
+            const baseSurveys = surveysResult.data.surveys || surveysResult.data || [];
+         
+            let enriched = await enrichSurveysWithCounts(baseSurveys);
+            enriched = await mergeAggregatedResponseCounts(enriched);
+            dashboardData.surveys = enriched;
+            updateSurveysDisplay(enriched);
+            updateResponsesCard();
+            await updateCompletionRateCard();
         } else {
             console.warn('Failed to load user surveys:', surveysResult);
             dashboardData.surveys = [];
             updateSurveysDisplay([]);
+            updateResponsesCard();
+            await updateCompletionRateCard();
+        }
+
+        try {
+            const totalResponsesEl = document.getElementById('totalResponses');
+            if (totalResponsesEl) {
+                const backendTotal = Number((dashboardData && dashboardData.stats && dashboardData.stats.totalResponses) || 0);
+                const computedTotal = (dashboardData.surveys || []).reduce((sum, s) => {
+                    const responses = typeof s.totalResponses === 'number' ? s.totalResponses : (s.responseCount || 0);
+                    return sum + responses;
+                }, 0);
+
+                const finalValue = backendTotal > 0 ? backendTotal : computedTotal;
+                animateStatNumber(totalResponsesEl, finalValue);
+            }
+        } catch (e) {
+            console.warn('Unable to finalize total responses display', e);
         }
 
     } catch (error) {
@@ -248,14 +303,623 @@ function updateStats(stats) {
     const avgResponseRateEl = document.getElementById('avgResponseRate');
 
     if (totalSurveysEl) animateStatNumber(totalSurveysEl, stats.totalSurveys || 0);
-    if (totalResponsesEl) animateStatNumber(totalResponsesEl, stats.totalResponses || 0);
-    if (activeSurveysEl) animateStatNumber(activeSurveysEl, stats.activeSurveys || 0);
+    if (totalResponsesEl) animateStatNumber(totalResponsesEl, Number(stats.totalResponses || 0));
+    if (activeSurveysEl) animateStatNumber(activeSurveysEl, stats.invitations || 0);
     if (avgResponseRateEl) {
-        const rate = stats.avgResponseRate || '0%';
+        const rate = stats.completionRate || stats.avgResponseRate || '0%';
         avgResponseRateEl.textContent = typeof rate === 'number' ? `${rate}%` : rate;
     }
 
     console.log('Dashboard stats updated:', stats);
+}
+
+function updateResponsesCard() {
+    try {
+        const totalResponsesEl = document.getElementById('totalResponses');
+        if (!totalResponsesEl) return;
+        const backendTotal = Number((dashboardData && dashboardData.stats && dashboardData.stats.totalResponses) || 0);
+        const computedTotal = (dashboardData.surveys || []).reduce((sum, s) => {
+            const responses = typeof s.totalResponses === 'number' ? s.totalResponses : (s.responseCount || 0);
+            return sum + Number(responses || 0);
+        }, 0);
+        const finalValue = backendTotal > 0 ? backendTotal : computedTotal;
+        animateStatNumber(totalResponsesEl, finalValue);
+    } catch (e) {
+        console.warn('Unable to update responses card', e);
+    }
+}
+
+async function updateCompletionRateCard(aggData = null) {
+    try {
+        const el = document.getElementById('avgResponseRate');
+        if (!el) return;
+
+        const backendRate = (dashboardData && dashboardData.stats && (dashboardData.stats.completionRate || dashboardData.stats.avgResponseRate));
+        if (typeof backendRate === 'number' && !isNaN(backendRate)) {
+            el.textContent = `${backendRate}%`;
+            return;
+        }
+
+        const overallFromAgg = aggData && (aggData.overallCompletionRate || (aggData.userStats && aggData.userStats.overallResponseRate));
+        if (typeof overallFromAgg === 'number' && !isNaN(overallFromAgg)) {
+            el.textContent = `${Math.round(overallFromAgg)}%`;
+            return;
+        }
+
+        const surveys = dashboardData.surveys || [];
+        const totals = surveys.reduce((acc, s) => {
+            const responses = typeof s.totalResponses === 'number' ? s.totalResponses : (s.responseCount || 0);
+            const invites = typeof s.maxResponses === 'number' ? s.maxResponses : (s.invitationCount || 0);
+            return { responses: acc.responses + Number(responses || 0), invitations: acc.invitations + Number(invites || 0) };
+        }, { responses: 0, invitations: 0 });
+
+        const computedRate = totals.invitations > 0 ? Math.round((totals.responses / totals.invitations) * 100) : 0;
+        el.textContent = `${computedRate}%`;
+    } catch (e) {
+        console.warn('Unable to update completion rate card', e);
+    }
+}
+
+// Real-time polling handler
+const DashboardRealTime = {
+    timer: null,
+    intervalMs: 30000,
+    isPolling: false,
+    start() {
+        if (this.timer) clearInterval(this.timer);
+        this.pollOnce();
+        this.timer = setInterval(() => this.pollOnce(), this.intervalMs);
+        window.retryDashboardPolling = () => this.pollOnce(true);
+    },
+    async pollOnce(isManual = false) {
+        if (this.isPolling) return;
+        this.isPolling = true;
+        try {
+            const [pollRes, aggRes] = await Promise.all([
+                getDashboardPollingStats(),
+                getCrossSurveyAggregationAPI()
+            ]);
+
+            if (pollRes.success && pollRes.data) {
+                const s = pollRes.data.userStats || pollRes.data.stats || pollRes.data;
+                const normalized = {
+                    totalSurveys: s.totalSurveys ?? s.totalSurveysCreated ?? 0,
+                    totalResponses: s.totalResponses ?? s.totalResponsesReceived ?? s.totalResponsesGiven ?? 0,
+                    invitations: s.totalInvitationsSent ?? s.totalInvitationsReceived ?? 0,
+                    completionRate: s.avgResponseRate ?? s.overallResponseRate ?? 0,
+                    recentActivity: s.recentActivity ?? 0
+                };
+                updateStats(normalized);
+                dashboardData.stats.totalResponses = normalized.totalResponses;
+                updateResponsesCard();
+            }
+
+            if (aggRes.success && aggRes.data) {
+                console.log('Cross-survey aggregation data:', aggRes.data); // Debug log
+                updateTrendChart(aggRes.data.responseTrends || []);
+                const enrichedStats = await enrichSurveyStatsWithInvitations(aggRes.data.surveyStats || []);
+                renderSurveyComparison(enrichedStats);
+                renderTrendSummary({ ...aggRes.data, surveyStats: enrichedStats });
+                renderInsights({ ...aggRes.data, surveyStats: enrichedStats });
+                await updateCompletionRateCard(aggRes.data);
+            } else {
+                console.log('Cross-survey aggregation failed:', aggRes); // Debug log
+            }
+
+            await updateAggregatedActivityFeed();
+
+        } catch (e) {
+            console.error('Polling error:', e);
+            M.toast({
+                html: '<i class="fas fa-wifi"></i> Live update failed. <a href="#" onclick="retryDashboardPolling()" style="color:#fff;text-decoration:underline;margin-left:8px;">Retry</a>',
+                classes: 'error-toast',
+                displayLength: 4000
+            });
+        } finally {
+            this.isPolling = false;
+        }
+    }
+};
+
+async function updateAggregatedActivityFeed() {
+    try {
+        const container = document.getElementById('activityFeed');
+        const errorEl = document.getElementById('activityError');
+        if (!container) return;
+
+        const surveysRes = await getUserSurveys();
+        if (!surveysRes.success || !surveysRes.data) {
+            if (errorEl) {
+                errorEl.textContent = 'Failed to load activity feed';
+                errorEl.style.display = 'block';
+            }
+            return;
+        }
+
+        const surveys = surveysRes.data.surveys || surveysRes.data || [];
+        const limited = surveys.slice(0, 5);
+
+        const feeds = await Promise.all(limited.map(s =>
+            getSurveyActivityFeed(String(s.id || s._id), 1, 10)
+        ));
+
+        let activities = feeds
+            .filter(f => f && f.success && f.data)
+            .flatMap(f => (Array.isArray(f.data.activities) ? f.data.activities : (Array.isArray(f.data) ? f.data : [])));
+
+        if (!activities || activities.length === 0) {
+            const invLists = await Promise.all(limited.map(s => getSurveyInvitationsList(String(s.id || s._id))));
+            const now = new Date().toISOString();
+            activities = invLists
+                .filter(r => r && r.success && r.data)
+                .flatMap(r => (Array.isArray(r.data.invitations) ? r.data.invitations : []))
+                .map(inv => ({
+                    type: inv.status === 'completed' ? 'response_submitted' : 'invitation_sent',
+                    message: inv.status === 'completed' ? 'Response submitted' : `Invitation sent to ${inv.recipientName || inv.recipientEmail || 'user'}`,
+                    createdAt: inv.completedAt || inv.sentAt || now
+                }));
+        }
+
+        if (!activities || activities.length === 0) {
+            const now = new Date();
+            activities = (surveys || [])
+                .slice(0, 5)
+                .map(s => ({
+                    type: 'survey_created',
+                    message: `Created survey "${s.title}"`,
+                    createdAt: s.createdAt || now.toISOString()
+                }));
+        }
+
+        activities = activities
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 20);
+
+        if (!activities || activities.length === 0) {
+            if (errorEl) {
+                errorEl.textContent = 'No recent activity';
+                errorEl.style.display = 'block';
+            }
+            container.innerHTML = '';
+            return;
+        }
+
+        renderActivity(activities);
+        if (errorEl) errorEl.style.display = 'none';
+    } catch (err) {
+        console.error('Failed to aggregate activity feed', err);
+        showActivityError('Failed to load activity feed');
+    }
+}
+
+async function enrichSurveysWithCounts(surveys) {
+    try {
+        if (!Array.isArray(surveys) || surveys.length === 0) return [];
+        const limited = surveys.slice(0, 10);
+        const results = await Promise.all(limited.map(s => getSurveyInvitationStats(s.id || s._id)));
+        return limited.map((s, i) => {
+            const r = results[i];
+            const invStats = r && r.success && r.data && (r.data.stats || r.data) || {};
+            const invitationCount = Number(invStats.totalInvitations || invStats.sent || s.invitationCount || 0);
+            const completedCount = Number(invStats.completedInvitations || invStats.completed || 0);
+            return {
+                ...s,
+                invitationCount,
+                responseCount: Math.max(Number(s.responseCount || 0), completedCount)
+            };
+        });
+    } catch (e) {
+        console.error('Failed to enrich surveys with counts:', e);
+        return surveys;
+    }
+}
+
+let responsesTrendChartInstance = null;
+function updateTrendChart(trends) {
+    const ctx = document.getElementById('responsesTrendChart');
+    if (!ctx) return;
+
+    const labels = trends.map(t => t._id || t.date);
+    const data = trends.map(t => t.count || 0);
+
+    if (!responsesTrendChartInstance) {
+        if (typeof window.Chart === 'undefined') {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+            s.onload = () => updateTrendChart(trends);
+            document.head.appendChild(s);
+            return;
+        }
+        responsesTrendChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Responses',
+                    data,
+                    borderColor: '#4285f4',
+                    backgroundColor: 'rgba(66,133,244,0.15)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: { duration: 300 },
+                plugins: { legend: { display: false } },
+                scales: { x: { display: true }, y: { beginAtZero: true } }
+            }
+        });
+        return;
+    }
+
+    responsesTrendChartInstance.data.labels = labels;
+    responsesTrendChartInstance.data.datasets[0].data = data;
+    responsesTrendChartInstance.update('none');
+}
+
+function renderSurveyComparison(stats) {
+    const container = document.getElementById('surveyComparison');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (!stats || stats.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#64748b; padding:20px;">No survey data available</div>';
+        return;
+    }
+    
+    console.log('Survey comparison data:', stats); 
+    const sorted = [...stats].sort((a, b) => {
+        const ta = a.lastResponseDate ? new Date(a.lastResponseDate).getTime() : 0;
+        const tb = b.lastResponseDate ? new Date(b.lastResponseDate).getTime() : 0;
+        if (tb !== ta) return tb - ta;
+        return (b.responseCount || 0) - (a.responseCount || 0);
+    });
+
+    surveyComparisonData = sorted;
+
+    // Render all surveys in a scrollable container (no limit to 5)
+    sorted.forEach((s, index) => {
+        console.log(`Survey: ${s.title}, Responses: ${s.responseCount}, Invitations: ${s.invitationCount}, Last Response: ${s.lastResponseDate}`); // Debug log
+        
+        const baseInvites = Number(s.invitationCount || 0);
+        const baseResponses = Number(s.responseCount || 0);
+        const effectiveInvites = baseInvites > 0 ? baseInvites : (baseResponses > 0 ? baseResponses : 0);
+        const completion = effectiveInvites > 0 ? Math.round((baseResponses / effectiveInvites) * 100) : (s.completionRate ?? 0);
+        const safeCompletion = isNaN(completion) ? 0 : Math.max(0, Math.min(100, completion));
+        
+        const isRecent = s.lastResponseDate && (new Date() - new Date(s.lastResponseDate)) < (7 * 24 * 60 * 60 * 1000);
+        const isTopRecent = index < 3 && s.responseCount > 0; // Top 3 with responses
+        
+        const item = document.createElement('div');
+        item.className = `comparison-item ${isRecent ? 'recent-response' : ''} ${isTopRecent ? 'top-recent' : ''}`;
+        item.innerHTML = `
+            <div class="comparison-survey-name">
+                ${escapeHtml(s.title || 'Untitled Survey')}
+                ${isRecent ? '<span class="recent-badge">Recent</span>' : ''}
+            </div>
+            <div class="comparison-completion">
+                <div class="completion-bar">
+                    <div class="completion-fill" style="width: ${safeCompletion}%"></div>
+                </div>
+                <span class="completion-rate">${safeCompletion}%</span>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+
+async function enrichSurveyStatsWithInvitations(stats) {
+    try {
+        if (!Array.isArray(stats) || stats.length === 0) return [];
+        const limited = stats.slice(0, 8);
+        const ids = limited.map(s => s.surveyId || s.id || s._id);
+        const results = await Promise.all(ids.map(id => getSurveyInvitationStats(id)));
+
+        const surveyListMap = new Map((dashboardData.surveys || []).map(x => [String(x.id || x._id || x.surveyId), Number(x.responseCount || x.totalResponses || 0)]));
+
+        const enriched = await Promise.all(limited.map(async (s, i) => {
+            const r = results[i];
+            const invStats = r && r.success && r.data && (r.data.stats || r.data) || {};
+            let invitationCount = Number(invStats.totalInvitations || invStats.sent || s.invitationCount || 0);
+            let completedCount = Number(invStats.completedInvitations || invStats.completed || s.responseCount || 0);
+
+            if ((!invitationCount || invitationCount === 0) && (!completedCount || completedCount === 0)) {
+                const list = await getSurveyInvitationsList(ids[i]);
+                if (list && list.success && list.data && Array.isArray(list.data.invitations)) {
+                    invitationCount = list.data.invitations.length;
+                    completedCount = list.data.invitations.filter(x => x.status === 'completed').length;
+                }
+            }
+
+            const fromDash = surveyListMap.get(String(ids[i]));
+            if ((!completedCount || completedCount === 0) && typeof fromDash === 'number' && fromDash > 0) {
+                completedCount = fromDash;
+            }
+
+            return {
+                ...s,
+                invitationCount,
+                responseCount: typeof s.responseCount === 'number' ? s.responseCount : completedCount
+            };
+        }));
+
+        return enriched;
+    } catch (e) {
+        console.error('Failed to enrich survey stats with invitation data:', e);
+        return stats;
+    }
+}
+
+// Merge response counts from cross-survey aggregation into survey list
+async function mergeAggregatedResponseCounts(surveys) {
+    try {
+        const aggRes = await getCrossSurveyAggregationAPI();
+        if (!aggRes.success || !aggRes.data) return surveys;
+        const byId = new Map((aggRes.data.surveyStats || []).map(s => [String(s.surveyId), s]));
+        return surveys.map(s => {
+            const key = String((s.id || s._id || s.surveyId || '').toString());
+            const agg = byId.get(key);
+            if (!agg) return s;
+            const merged = {
+                ...s,
+                responseCount: Math.max(
+                    Number(s.responseCount || 0),
+                    Number(agg.responseCount || 0)
+                )
+            };
+            return merged;
+        });
+    } catch (e) {
+        console.error('Failed to merge aggregated response counts:', e);
+        return surveys;
+    }
+}
+
+function renderTrendSummary(agg) {
+    const container = document.getElementById('trendSummaryCards');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const trends = agg.responseTrends || [];
+    const surveyStats = agg.surveyStats || [];
+    
+    const lastWeek = trends.slice(-7);
+    const responseDelta = lastWeek.length > 1 ? (lastWeek[lastWeek.length-1].count - lastWeek[0].count) : 0;
+    const responseChange = responseDelta >= 0 ? responseDelta : Math.abs(responseDelta);
+    const responseTrend = responseDelta >= 0 ? 'positive' : 'negative';
+    
+    const avgCompletion = surveyStats.length > 0 ? 
+        surveyStats.reduce((sum, s) => {
+            const completion = s.invitationCount > 0 ? (s.responseCount / s.invitationCount) * 100 : 0;
+            return sum + completion;
+        }, 0) / surveyStats.length : 0;
+    
+    const activeSurveys = surveyStats.filter(s => s.responseCount > 0).length;
+    
+    const trendCards = [
+        {
+            icon: responseTrend,
+            text: responseDelta >= 0 ? 'Response increase this week' : 'Response decrease this week',
+            value: `${responseDelta >= 0 ? '+' : ''}${responseChange}`,
+            period: 'vs last week',
+            iconClass: responseTrend
+        },
+        {
+            icon: 'neutral',
+            text: 'Average completion rate',
+            value: `${Math.round(avgCompletion)}%`,
+            period: 'across all surveys',
+            iconClass: 'neutral'
+        },
+        {
+            icon: 'positive',
+            text: 'Active surveys',
+            value: activeSurveys,
+            period: 'with responses',
+            iconClass: 'positive'
+        },
+        {
+            icon: 'warning',
+            text: 'Total responses today',
+            value: trends.length > 0 ? trends[trends.length-1]?.count || 0 : 0,
+            period: 'responses received',
+            iconClass: 'warning'
+        }
+    ];
+    
+    trendCards.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'trend-summary-card';
+        cardElement.innerHTML = `
+            <div class="trend-summary-header">
+                <div class="trend-summary-icon ${card.iconClass}">
+                    <i class="fas ${getTrendIcon(card.icon)}"></i>
+                </div>
+                <div class="trend-summary-text">${card.text}</div>
+            </div>
+            <div class="trend-summary-value">${card.value}</div>
+            <div class="trend-summary-period">${card.period}</div>
+        `;
+        container.appendChild(cardElement);
+    });
+}
+
+function getTrendIcon(type) {
+    const icons = {
+        positive: 'fa-arrow-up',
+        negative: 'fa-arrow-down',
+        neutral: 'fa-chart-line',
+        warning: 'fa-exclamation-triangle'
+    };
+    return icons[type] || 'fa-chart-line';
+}
+
+function configureStatLabels() {
+    const l1 = document.getElementById('labelTotalSurveys');
+    const l2 = document.getElementById('labelTotalResponses');
+    const l3 = document.getElementById('labelInvitations');
+    const l4 = document.getElementById('labelCompletionRate');
+    if (l1) l1.textContent = 'Total Surveys';
+    if (l2) l2.textContent = 'Responses';
+    if (l3) l3.textContent = 'Invitations';
+    if (l4) l4.textContent = 'Completion Rate';
+}
+
+function renderInsights(agg) {
+    const panel = document.getElementById('insightsPanel');
+    if (!panel) return;
+    
+    const trends = agg.responseTrends || [];
+    const surveyStats = agg.surveyStats || [];
+    
+    const insights = generateAutomatedInsights(trends, surveyStats);
+    
+    if (insights.length === 0) {
+        panel.innerHTML = '<div class="no-insights">No insights available at this time.</div>';
+        return;
+    }
+    
+    panel.innerHTML = insights.map(insight => `
+        <div class="insight-card ${insight.type}">
+            <div class="insight-icon">
+                <i class="fas ${insight.icon}"></i>
+            </div>
+            <div class="insight-content">
+                <div class="insight-title">${insight.title}</div>
+                <div class="insight-description">${insight.description}</div>
+                ${insight.metric ? `<div class="insight-metric">${insight.metric}</div>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function generateAutomatedInsights(trends, surveyStats) {
+    const insights = [];
+    
+    if (trends.length >= 7) {
+        const lastWeek = trends.slice(-7);
+        const firstHalf = lastWeek.slice(0, 3);
+        const secondHalf = lastWeek.slice(4);
+        
+        const firstHalfAvg = firstHalf.reduce((sum, t) => sum + (t.count || 0), 0) / firstHalf.length;
+        const secondHalfAvg = secondHalf.reduce((sum, t) => sum + (t.count || 0), 0) / secondHalf.length;
+        
+        const trendChange = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100;
+        
+        if (Math.abs(trendChange) > 10) {
+            insights.push({
+                type: trendChange > 0 ? 'positive' : 'negative',
+                icon: trendChange > 0 ? 'fa-arrow-up' : 'fa-arrow-down',
+                title: 'Response Trend Analysis',
+                description: trendChange > 0 
+                    ? 'Your surveys are trending upwards in responses this week'
+                    : 'Response activity has declined in recent days',
+                metric: `${Math.abs(trendChange).toFixed(1)}% ${trendChange > 0 ? 'increase' : 'decrease'}`
+            });
+        }
+    }
+    
+    const surveysWithResponses = surveyStats.filter(s => s.responseCount > 0);
+    if (surveysWithResponses.length > 1) {
+        const sortedSurveys = surveysWithResponses.sort((a, b) => {
+            const aRate = a.invitationCount > 0 ? (a.responseCount / a.invitationCount) * 100 : 0;
+            const bRate = b.invitationCount > 0 ? (b.responseCount / b.invitationCount) * 100 : 0;
+            return bRate - aRate;
+        });
+        
+        const bestSurvey = sortedSurveys[0];
+        const worstSurvey = sortedSurveys[sortedSurveys.length - 1];
+        const bestRate = bestSurvey.invitationCount > 0 ? (bestSurvey.responseCount / bestSurvey.invitationCount) * 100 : 0;
+        const worstRate = worstSurvey.invitationCount > 0 ? (worstSurvey.responseCount / worstSurvey.invitationCount) * 100 : 0;
+        
+        if (bestRate > 70) {
+            insights.push({
+                type: 'positive',
+                icon: 'fa-star',
+                title: 'Top Performer',
+                description: `"${bestSurvey.title}" has excellent completion rates`,
+                metric: `${bestRate.toFixed(1)}% completion`
+            });
+        }
+        
+        if (worstRate < 30 && worstRate > 0) {
+            insights.push({
+                type: 'warning',
+                icon: 'fa-exclamation-triangle',
+                title: 'Needs Attention',
+                description: `"${worstSurvey.title}" has low completion rates`,
+                metric: `${worstRate.toFixed(1)}% completion`
+            });
+        }
+    }
+    
+    const totalResponses = surveyStats.reduce((sum, s) => sum + s.responseCount, 0);
+    const totalInvitations = surveyStats.reduce((sum, s) => sum + s.invitationCount, 0);
+    const overallRate = totalInvitations > 0 ? (totalResponses / totalInvitations) * 100 : 0;
+    
+    if (overallRate > 60) {
+        insights.push({
+            type: 'positive',
+            icon: 'fa-chart-line',
+            title: 'Strong Performance',
+            description: 'Your surveys are performing well overall',
+            metric: `${overallRate.toFixed(1)}% average completion`
+        });
+    } else if (overallRate < 30 && totalResponses > 0) {
+        insights.push({
+            type: 'warning',
+            icon: 'fa-chart-line',
+            title: 'Room for Improvement',
+            description: 'Consider optimizing your survey design or invitation strategy',
+            metric: `${overallRate.toFixed(1)}% average completion`
+        });
+    }
+    
+    const inactiveSurveys = surveyStats.filter(s => s.responseCount === 0 && s.invitationCount > 0);
+    if (inactiveSurveys.length > 0) {
+        insights.push({
+            type: 'info',
+            icon: 'fa-pause-circle',
+            title: 'Inactive Surveys',
+            description: `${inactiveSurveys.length} survey${inactiveSurveys.length > 1 ? 's' : ''} haven't received responses yet`,
+            metric: inactiveSurveys.map(s => s.title).slice(0, 2).join(', ') + (inactiveSurveys.length > 2 ? '...' : '')
+        });
+    }
+    
+    return insights.slice(0, 4); 
+}
+
+function renderActivity(activities) {
+    const feed = document.getElementById('activityFeed');
+    if (!feed) return;
+    feed.innerHTML = '';
+    if (!activities || activities.length === 0) {
+        showActivityError('No recent activity');
+        return;
+    }
+    activities.forEach(a => {
+        const item = document.createElement('div');
+        item.className = 'activity-item';
+        const icon = a.type === 'response_submitted' ? 'fa-user-plus' : (a.type === 'survey_created' ? 'fa-edit' : 'fa-paper-plane');
+        const color = a.type === 'response_submitted' ? 'green' : (a.type === 'survey_created' ? 'orange' : 'blue');
+        const when = new Date(a.createdAt).toLocaleString();
+        item.innerHTML = `
+            <div class="activity-icon ${color}"><i class="fas ${icon}"></i></div>
+            <div class="activity-text"><span class="activity-action">${escapeHtml(a.message || a.type)}</span><span class="activity-time">${when}</span></div>
+        `;
+        feed.appendChild(item);
+    });
+    feed.parentElement && (feed.parentElement.scrollTop = 0);
+}
+
+function showActivityError(msg) {
+    const el = document.getElementById('activityError');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
 }
 
 /**
@@ -308,6 +972,16 @@ function updateSurveysDisplay(surveys) {
         animateStatNumber(totalSurveysElement, surveys.length);
     }
 
+    // Update the total responses count in stats (computed from surveys)
+    const totalResponsesElement = document.getElementById('totalResponses');
+    if (totalResponsesElement) {
+        const totalResponses = (surveys || []).reduce((sum, s) => {
+            const responses = typeof s.totalResponses === 'number' ? s.totalResponses : (s.responseCount || 0);
+            return sum + responses;
+        }, 0);
+        animateStatNumber(totalResponsesElement, totalResponses);
+    }
+
     // Clear existing content
     surveysContainer.innerHTML = '';
 
@@ -321,26 +995,29 @@ function updateSurveysDisplay(surveys) {
         return;
     }
 
-    // Generate survey cards - limit to first 5 for compact display
-    const surveysToShow = surveys.slice(0, 5);
+    // Check if we're on the my-surveys page to show all surveys
+    const isMySurveysPage = window.location.pathname.includes('my-surverys.html');
+    
+    // Generate survey cards - show all on my-surveys page, limit to 5 on dashboard
+    const surveysToShow = isMySurveysPage ? surveys : surveys.slice(0, 5);
     surveysToShow.forEach(survey => {
         const surveyCard = createSurveyCard(survey);
         surveysContainer.appendChild(surveyCard);
     });
 
-    // Add "View All" link if there are more than 5 surveys
-    if (surveys.length > 5) {
+    // Add "View All" link only if not on my-surveys page and there are more than 5 surveys
+    if (!isMySurveysPage && surveys.length > 5) {
         const viewAllDiv = document.createElement('div');
         viewAllDiv.className = 'view-all-surveys';
         viewAllDiv.innerHTML = `
-            <a href="#" class="link-view-all" onclick="showAllSurveys()">
+            <a href="my-surverys.html" class="link-view-all">
                 View all ${surveys.length} surveys <i class="fas fa-arrow-right"></i>
             </a>
         `;
         surveysContainer.appendChild(viewAllDiv);
     }
 
-    console.log(`Displayed ${surveysToShow.length} surveys out of ${surveys.length} total`);
+    console.log(`Displayed ${surveysToShow.length} surveys out of ${surveys.length} total${isMySurveysPage ? ' (all surveys on my-surveys page)' : ''}`);
 }
 
 
@@ -360,6 +1037,8 @@ async function renderInvitationsListFromUser() {
     const list = document.getElementById('invitations-list');
     if (!list) return;
 
+    list.innerHTML = '';
+
     try {
         // Fetch invitations from API
         const result = await getReceivedInvitationsFromUser();
@@ -374,10 +1053,16 @@ async function renderInvitationsListFromUser() {
         const invitations = result.data || [];
         console.log('Invitations:', invitations);
 
-        // list.innerHTML = '';
-
         if (!invitations.length) {
-            list.innerHTML = '<div style="text-align:center; color:#888; padding:32px 0;">No invitations found.</div>';
+            list.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h4>No invitations yet</h4>
+                    <p>You don't have any invitations at this time.</p>
+                </div>
+            `;
             return;
         }
 
@@ -393,52 +1078,48 @@ async function renderInvitationsListFromUser() {
             }
 
             const sender = inv.creatorName ? `From: ${inv.creatorName}` : 'From: Unknown sender';
+            const senderEmail = inv.creatorEmail ? ` (${inv.creatorEmail})` : '';
 
             const item = document.createElement('div');
             item.className = 'invitation-card';
             item.innerHTML = `
-                <div class="invitation-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0; margin-bottom:8px;">
-                    <div style="display:flex;flex-direction:column;gap:2px;">
-                        <span class="invitation-title" style="font-size:16px;font-weight:500;margin:0;">${inv.surveyTitle || 'Untitled Survey'}</span>
-                        <span class="invitation-from" style="font-size:13px;color:#6c757d;margin:0;">${sender}</span>
-                    </div>
-                    <button class="take-survey-btn" style="margin:0 0 0 12px;padding:6px 16px;font-size:14px;min-width:90px;" data-surveylink="${inv.surveyLink}" data-invitationid="${inv.id}">
-                        ${inv.status === 'completed' ? 'View Results' : 'Take Survey'}
-                    </button>
+                <div class="invitation-header">
+                        <span class="invitation-title">${inv.surveyTitle || 'Untitled Survey'}</span>
+                    <span class="invitation-from">${sender}${senderEmail}</span>
+                    <span class="invitation-due">${dueDateText}</span>
                 </div>
-                <span class="invitation-date" style="font-size:12px;color:#888;margin-top:2px;display:block;">${dueDateText}</span>
+                <button 
+                    class="take-survey-btn ${ (inv.surveyStatus === 'completed' || inv.status === 'completed') ? 'disabled-btn' : '' }" 
+                    data-surveylink="${inv.surveyLink}" 
+                    data-invitationid="${inv.id}"
+                    ${(inv.surveyStatus === 'completed' || inv.status === 'completed') ? 'disabled' : ''}>
+                    ${(inv.surveyStatus === 'completed' || inv.status === 'completed') ? 'Completed' : 'Take Survey'}
+                </button>
+
 
             `;
             list.appendChild(item);
         });
 
-        document.addEventListener("click", function (e) {
-            if (e.target && e.target.classList.contains("take-survey-btn")) {
-                const surveyLink = e.target.getAttribute("data-surveylink");
-                const invitationId = e.target.getAttribute("data-invitationid");
+        // Use event delegation to prevent multiple listeners
+        if (!list.hasAttribute('data-listeners-attached')) {
+            list.setAttribute('data-listeners-attached', 'true');
+            list.addEventListener("click", function (e) {
+                if (e.target && e.target.classList.contains("take-survey-btn")) {
+                    const surveyLink = e.target.getAttribute("data-surveylink");
+                    const invitationId = e.target.getAttribute("data-invitationid");
 
-                const id1 = surveyLink.split("/survey/")[1].split("?")[0];
-                console.log("Survey ID:", id1);  // 👉 68c465cf90313f1bd961daae
+                    const id1 = surveyLink.split("/survey/")[1].split("?")[0];
+                    console.log("Survey ID:", id1);  
 
-                // Method 2: Regex
-                const match = surveyLink.match(/\/survey\/([^?]+)/);
-                const id2 = match ? match[1] : null;
-                console.log("Survey ID (regex):", id2);
+                    const match = surveyLink.match(/\/survey\/([^?]+)/);
+                    const id2 = match ? match[1] : null;
+                    console.log("Survey ID (regex):", id2);
 
-                // Redirect to new HTML page with ID passed in query string
-                // Example: /survey.html?id=68c465cf90313f1bd961daae&link=...
-                window.location.href = `/public/dashboard/take-survey.html?id=${id2}&link=${encodeURIComponent(surveyLink)}`;
-            }
-        });
-
-        // Add event listeners to buttons
-        document.querySelectorAll('.btn-take-survey').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const surveyLink = e.target.getAttribute('data-surveylink');
-                const invitationId = e.target.getAttribute('data-invitationid');
-                navigateToTakeSurvey(surveyLink, invitationId);
+                    window.location.href = `/public/dashboard/take-survey.html?id=${id2}&link=${encodeURIComponent(surveyLink)}`;
+                }
             });
-        });
+        }
 
     } catch (error) {
         console.error('Error rendering invitations:', error);
@@ -461,75 +1142,98 @@ function createSurveyCard(survey) {
     card.className = 'survey-card';
     card.setAttribute('data-survey-id', survey.id || survey._id);
 
-    // Calculate response rate
-    const responseRate = survey.totalResponses > 0 && survey.maxResponses > 0
-        ? Math.round((survey.totalResponses / survey.maxResponses) * 100)
-        : 0;
+    const responses = typeof survey.totalResponses === 'number' ? survey.totalResponses : Number(survey.responseCount || 0);
+    const maxResponses = typeof survey.maxResponses === 'number' ? survey.maxResponses : (survey.invitationCount || 0);
+    const responseRate = maxResponses > 0 ? Math.round((responses / maxResponses) * 100) : 0;
 
-    // Format creation date
-    const createdDate = new Date(survey.createdAt);
-    const formattedDate = createdDate.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-    });
-
+    const createdAt = survey.createdAt ? new Date(survey.createdAt) : new Date();
+    const createdDate = createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     
+    // Get question count - assuming it's stored in survey.questions or survey.questionCount
+    const questionCount = survey.questions ? survey.questions.length : (survey.questionCount || 0);
 
     // Determine status
-    const status = survey.status === 'active' ? 'Active' : 'Draft';
+    const status = survey.status === 'active' ? 'ACTIVE' : 'INACTIVE';
     const statusClass = survey.status === 'active' ? 'status-active' : 'status-draft';
 
     card.innerHTML = `
         <div class="card-header">
             <h4 class="survey-title">${escapeHtml(survey.title)}</h4>
-            <div class="survey-status ${statusClass}">${status}</div>
+            <div class="survey-status ${statusClass}" data-role="status-label" data-id="${survey.id || survey._id}">${status}</div>
         </div>
-        
+
         <div class="survey-meta">
             <div class="meta-item">
                 <i class="fas fa-calendar"></i>
-                <span>Created ${formattedDate}</span>
+                <span>Created ${createdDate}</span>
             </div>
             <div class="meta-item">
                 <i class="fas fa-question-circle"></i>
-                <span>${survey.questionCount || 0} Questions</span>            
-                </div>
+                <span>${questionCount} Questions</span>
+            </div>
         </div>
-        
+
         <div class="survey-stats">
             <div class="stat">
-                <span class="stat-value">${survey.totalResponses || 0}</span>
-                <span class="stat-label">Responses</span>
+                <div class="stat-value">${responses}</div>
+                <div class="stat-label">RESPONSES</div>
             </div>
             <div class="stat">
-                <span class="stat-value">${responseRate}%</span>
-                <span class="stat-label">Response Rate</span>
+                <div class="stat-value">${responseRate}%</div>
+                <div class="stat-label">RESPONSE RATE</div>
             </div>
         </div>
-        
+
         <div class="survey-actions">
-            <button class="btn btn-small btn-outline" onclick="viewSurvey('${survey.id || survey._id}')">
-                <i class="fas fa-chart-bar"></i> Analytics
+            <button class="btn-small btn-outline" onclick="viewAnalytics('${survey.id || survey._id}')">
+                <i class="fas fa-chart-line"></i> ANALYTICS
             </button>
-            <button class="btn btn-small btn-outline" onclick="editSurvey('${survey.id || survey._id}')">
-                <i class="fas fa-edit"></i> Edit
+            <button class="btn-small btn-outline" onclick="shareSurvey('${survey.id || survey._id}')">
+                <i class="fas fa-share"></i> SHARE
             </button>
-            <button class="btn btn-small btn-outline" onclick="shareSurvey('${survey.id || survey._id}')">
-                <i class="fas fa-share"></i> Share
+            <button class="btn-small btn-primary" onclick="toggleSurveyStatus('${survey.id || survey._id}')">
+                <i class="fas fa-play"></i> ${survey.status === 'active' ? 'DEACTIVATE' : 'ACTIVATE'}
             </button>
-            ${survey.isActive ?
-            `<button class="btn btn-small btn-outline red" onclick="deactivateSurvey('${survey.id || survey._id}')">
-                    <i class="fas fa-pause"></i> Pause
-                </button>` :
-            `<button class="btn btn-small btn-primary" onclick="activateSurvey('${survey.id || survey._id}')">
-                    <i class="fas fa-play"></i> Activate
-                </button>`
-        }
         </div>
     `;
 
     return card;
+}
+
+window.toggleSurveyStatus = async function (surveyId) {
+    try {
+        const s = (dashboardData.surveys || []).find(x => String(x.id || x._id) === String(surveyId));
+        const current = s && s.status === 'active' ? 'active' : 'closed';
+        const nextStatus = current === 'active' ? 'closed' : 'active';
+        const res = await updateSurveyStatusAPI(surveyId, nextStatus);
+        if (res && res.success) {
+            if (s) s.status = nextStatus;
+            const card = document.querySelector(`.survey-card[data-survey-id="${surveyId}"]`);
+            if (card) {
+                const label = card.querySelector('[data-role="status-label"]');
+                if (label) {
+                    label.textContent = nextStatus === 'active' ? 'ACTIVE' : 'INACTIVE';
+                    label.classList.toggle('status-active', nextStatus === 'active');
+                    label.classList.toggle('status-draft', nextStatus !== 'active');
+                }
+                
+                // Update the activate/deactivate button text
+                const toggleButton = card.querySelector('.btn-primary');
+                if (toggleButton) {
+                    const buttonText = nextStatus === 'active' ? 'DEACTIVATE' : 'ACTIVATE';
+                    const buttonIcon = nextStatus === 'active' ? 'fa-pause' : 'fa-play';
+                    toggleButton.innerHTML = `<i class="fas ${buttonIcon}"></i> ${buttonText}`;
+                }
+            }
+            M.toast({ html: `<i class="fas fa-check"></i> Survey ${nextStatus}`, classes: 'success-toast', displayLength: 2000 });
+        } else {
+            const msg = (res && res.data && res.data.error) || res.error || 'Failed to update survey status';
+            M.toast({ html: `<i class="fas fa-exclamation-triangle"></i> ${msg}`, classes: 'error-toast', displayLength: 3000 });
+        }
+    } catch (e) {
+        console.error('Toggle survey status error', e);
+        M.toast({ html: '<i class="fas fa-exclamation-triangle"></i> Failed to update survey status', classes: 'error-toast', displayLength: 3000 });
+    }
 }
 
 /**
@@ -557,6 +1261,24 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Relative time formatter
+function formatRelativeTime(date) {
+    try {
+        const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+        const diffMs = date.getTime() - Date.now();
+        const seconds = Math.round(diffMs / 1000);
+        const minutes = Math.round(seconds / 60);
+        const hours = Math.round(minutes / 60);
+        const days = Math.round(hours / 24);
+        if (Math.abs(days) >= 1) return rtf.format(days, 'day');
+        if (Math.abs(hours) >= 1) return rtf.format(hours, 'hour');
+        if (Math.abs(minutes) >= 1) return rtf.format(minutes, 'minute');
+        return rtf.format(seconds, 'second');
+    } catch (_) {
+        return date.toLocaleDateString();
+    }
+}
+
 /**
  * Phase 6: Enhanced loading state management
  */
@@ -580,68 +1302,62 @@ function showLoading(show) {
 }
 
 /**
- * Phase 6: Survey action handlers
+ * Phase 6: Survey action handlers - Connected to existing functionality
  */
-window.viewSurvey = function (surveyId) {
-    console.log('Viewing survey analytics:', surveyId);
-    // Navigate to the individual survey analytics page with proper survey ID
-    window.location.href = `survey-analytics.html?id=${surveyId}`;
+window.viewSurvey = async function (surveyId) {
+    console.log('Viewing survey:', surveyId);
+    try {
+        // Navigate to my-surveys page which shows detailed survey information
+        window.location.href = 'my-surverys.html';
+    } catch (error) {
+        console.error('Error navigating to survey view:', error);
+        M.toast({
+            html: '<i class="fas fa-exclamation-triangle"></i> Error opening survey view',
+            classes: 'error-toast',
+            displayLength: 3000
+        });
+    }
+};
+
+window.viewAnalytics = async function (surveyId) {
+    console.log('Viewing analytics for survey:', surveyId);
+    try {
+        // Navigate to survey analytics page with survey ID
+        window.location.href = `survey-analytics.html?id=${surveyId}`;
+    } catch (error) {
+        console.error('Error navigating to analytics:', error);
+        M.toast({
+            html: '<i class="fas fa-exclamation-triangle"></i> Error opening analytics',
+            classes: 'error-toast',
+            displayLength: 3000
+        });
+    }
 };
 
 window.editSurvey = function (surveyId) {
     console.log('Editing survey:', surveyId);
-    // Store survey ID and navigate to edit page (when implemented)
-    sessionStorage.setItem('editSurveyId', surveyId);
-    M.toast({
-        html: '<i class="fas fa-info-circle"></i> Survey editing coming soon!',
-        classes: 'info-toast',
-        displayLength: 3000
-    });
+    try {
+        // Store survey ID for editing and navigate to create-survey page
+        sessionStorage.setItem('editSurveyId', surveyId);
+        sessionStorage.setItem('editMode', 'true');
+        window.location.href = 'create-survey.html';
+    } catch (error) {
+        console.error('Error navigating to survey edit:', error);
+        M.toast({
+            html: '<i class="fas fa-exclamation-triangle"></i> Error opening survey editor',
+            classes: 'error-toast',
+            displayLength: 3000
+        });
+    }
 };
 
-window.shareSurvey = function (surveyId) {
+window.shareSurvey = async function (surveyId) {
     console.log('Sharing survey:', surveyId);
-
-    // Generate survey share link
-    const shareLink = `${window.location.origin}/survey/${surveyId}`;
-
-    // Copy to clipboard
-    navigator.clipboard.writeText(shareLink).then(() => {
-        M.toast({
-            html: '<i class="fas fa-check"></i> Survey link copied to clipboard!',
-            classes: 'success-toast',
-            displayLength: 3000
-        });
-    }).catch(() => {
-        // Fallback for browsers that don't support clipboard API
-        console.log('Survey share link:', shareLink);
-        M.toast({
-            html: '<i class="fas fa-info-circle"></i> Survey link logged to console',
-            classes: 'info-toast',
-            displayLength: 3000
-        });
-    });
+    
+    // Redirect to dedicated share page
+    window.location.href = `share-survey.html?surveyId=${surveyId}`;
 };
 
-window.activateSurvey = function (surveyId) {
-    console.log('Activating survey:', surveyId);
-    // TODO: Implement survey activation API call
-    M.toast({
-        html: '<i class="fas fa-info-circle"></i> Survey activation coming soon!',
-        classes: 'info-toast',
-        displayLength: 3000
-    });
-};
-
-window.deactivateSurvey = function (surveyId) {
-    console.log('Deactivating survey:', surveyId);
-    // TODO: Implement survey deactivation API call
-    M.toast({
-        html: '<i class="fas fa-info-circle"></i> Survey deactivation coming soon!',
-        classes: 'info-toast',
-        displayLength: 3000
-    });
-};
 
 /**
  * Show all surveys - expands the compact view to show all surveys
@@ -675,6 +1391,7 @@ function showAllSurveys() {
 // Make showAllSurveys available globally for onclick
 window.showAllSurveys = showAllSurveys;
 
+
 /**
  * Phase 6: Search and filter functionality
  */
@@ -682,11 +1399,100 @@ function filterSurveys(searchTerm) {
     const surveyCards = document.querySelectorAll('.survey-card');
     const term = searchTerm.toLowerCase();
 
+    console.log(`Filtering surveys with term: "${term}"`);
+    console.log(`Found ${surveyCards.length} survey cards`);
+
+    let visibleCount = 0;
     surveyCards.forEach(card => {
-        const title = card.querySelector('.survey-title').textContent.toLowerCase();
+        const titleElement = card.querySelector('.survey-title');
+        if (!titleElement) {
+            console.warn('Survey card missing title element:', card);
+            return;
+        }
+        
+        const title = titleElement.textContent.toLowerCase();
         const shouldShow = title.includes(term);
         card.style.display = shouldShow ? 'block' : 'none';
+        
+        if (shouldShow) visibleCount++;
+        console.log(`Survey "${title}" - ${shouldShow ? 'SHOW' : 'HIDE'}`);
     });
+    
+    // Show/hide no results message
+    const surveysContainer = document.getElementById('surveysContainer');
+    if (surveysContainer) {
+        let noResultsMsg = surveysContainer.querySelector('.no-results-message');
+        
+        if (term && visibleCount === 0) {
+            if (!noResultsMsg) {
+                noResultsMsg = document.createElement('div');
+                noResultsMsg.className = 'no-results-message';
+                noResultsMsg.style.cssText = 'text-align: center; color: #6c757d; padding: 20px; font-style: italic;';
+                noResultsMsg.innerHTML = `No surveys found matching "${searchTerm}"`;
+                surveysContainer.appendChild(noResultsMsg);
+            }
+            noResultsMsg.style.display = 'block';
+        } else if (noResultsMsg) {
+            noResultsMsg.style.display = 'none';
+        }
+    }
+}
+
+function filterInvitations(searchTerm) {
+    const invitationCards = document.querySelectorAll('.invitation-card');
+    const term = searchTerm.toLowerCase();
+    
+    console.log(`Filtering invitations with term: "${term}"`);
+    console.log(`Found ${invitationCards.length} invitation cards`);
+
+    let visibleCount = 0;
+    invitationCards.forEach(card => {
+        const titleElement = card.querySelector('.invitation-title');
+        if (!titleElement) {
+            console.warn('Invitation card missing title element:', card);
+            return;
+        }
+        
+        const title = titleElement.textContent.toLowerCase();
+        const shouldShow = title.includes(term);
+        
+        // Use display: flex to maintain proper card layout
+        card.style.display = shouldShow ? 'flex' : 'none';
+        
+        // Ensure card maintains its styling
+        if (shouldShow) {
+            card.style.background = '#ffffff';
+            card.style.border = '1px solid #e8edf5';
+            card.style.borderRadius = '8px';
+            card.style.padding = '16px';
+            card.style.boxShadow = '0 1px 2px rgba(16,24,40,0.04)';
+            card.style.justifyContent = 'space-between';
+            card.style.alignItems = 'center';
+            card.style.marginBottom = '16px';
+        }
+        
+        if (shouldShow) visibleCount++;
+        console.log(`Invitation "${title}" - ${shouldShow ? 'SHOW' : 'HIDE'}`);
+    });
+    
+    // Show/hide no results message
+    const invitationsContainer = document.getElementById('invitations-list');
+    if (invitationsContainer) {
+        let noResultsMsg = invitationsContainer.querySelector('.no-results-message');
+        
+        if (term && visibleCount === 0) {
+            if (!noResultsMsg) {
+                noResultsMsg = document.createElement('div');
+                noResultsMsg.className = 'no-results-message';
+                noResultsMsg.style.cssText = 'text-align: center; color: #6c757d; padding: 20px; font-style: italic;';
+                noResultsMsg.innerHTML = `No invitations found matching "${searchTerm}"`;
+                invitationsContainer.appendChild(noResultsMsg);
+            }
+            noResultsMsg.style.display = 'block';
+        } else if (noResultsMsg) {
+            noResultsMsg.style.display = 'none';
+        }
+    }
 }
 
 /**

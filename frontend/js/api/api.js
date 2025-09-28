@@ -406,6 +406,83 @@ export async function downloadPDF(surveyId, format = 'full') {
   }
 }
 
+
+export async function getDashboardPollingStats() {
+  try {
+    const { res, data } = await getJSONAuth('/dashboard/user/stats/poll');
+    return { success: res.ok, data, status: res.status };
+  } catch (error) {
+    console.error('API Error in getDashboardPollingStats:', error);
+    return { success: false, error: 'Network error occurred' };
+  }
+}
+
+export async function getCrossSurveyAggregationAPI() {
+  try {
+    const { res, data } = await getJSONAuth('/dashboard/user/cross-survey-aggregation');
+    return { success: res.ok, data, status: res.status };
+  } catch (error) {
+    console.error('API Error in getCrossSurveyAggregationAPI:', error);
+    return { success: false, error: 'Network error occurred' };
+  }
+}
+
+export async function getUserActivityFeed(page = 1, limit = 20) {
+  try {
+    const { res, data } = await getJSONAuth(`/activity/user?page=${page}&limit=${limit}`);
+    return { success: res.ok, data, status: res.status };
+  } catch (error) {
+    console.error('API Error in getUserActivityFeed:', error);
+    return { success: false, error: 'Network error occurred' };
+  }
+}
+
+export async function getSurveyActivityFeed(surveyId, page = 1, limit = 20) {
+  try {
+    const { res, data } = await getJSONAuth(`/activity/survey/${surveyId}?page=${page}&limit=${limit}`);
+    return { success: res.ok, data, status: res.status };
+  } catch (error) {
+    console.error('API Error in getSurveyActivityFeed:', error);
+    return { success: false, error: 'Network error occurred' };
+  }
+}
+
+export async function getSurveyInvitationStats(surveyId) {
+  try {
+    const { res, data } = await getJSONAuth(`/surveys/${surveyId}/invitations/stats`);
+    return { success: res.ok, data, status: res.status };
+  } catch (error) {
+    console.error('API Error in getSurveyInvitationStats:', error);
+    return { success: false, error: 'Network error occurred' };
+  }
+}
+
+export async function getSurveyInvitationsList(surveyId) {
+  try {
+    const { res, data } = await getJSONAuth(`/surveys/${surveyId}/invitations`);
+    return { success: res.ok, data, status: res.status };
+  } catch (error) {
+    console.error('API Error in getSurveyInvitationsList:', error);
+    return { success: false, error: 'Network error occurred' };
+  }
+}
+
+export async function updateSurveyStatusAPI(surveyId, status) {
+  try {
+    const res = await fetch(`${API_BASE}/surveys/${surveyId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ status })
+    });
+    let data = null;
+    try { data = await res.json(); } catch (_) {}
+    return { success: res.ok, data, status: res.status };
+  } catch (error) {
+    console.error('API Error in updateSurveyStatusAPI:', error);
+    return { success: false, error: 'Network error occurred' };
+  }
+}
+
 // Export analytics functions
 export {
   getSurveyAnalysis,
