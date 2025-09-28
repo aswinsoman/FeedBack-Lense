@@ -402,7 +402,7 @@ function showEmptyState() {
                     <i class="fas fa-chart-line" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 16px;"></i>
                     <h4 style="color: #2c3e50; margin: 16px 0 8px 0;">No Surveys Found</h4>
                     <p style="color: #7f8c8d; margin-bottom: 24px;">Create your first survey to see analytics data.</p>
-                    <a href="my-surverys.html" class="btn btn-primary">Create Survey</a>
+                    <a href="create-survey.html" class="btn btn-primary">Create Survey</a>
                 </td>
             </tr>
         `;

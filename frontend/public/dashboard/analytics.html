@@ -8,8 +8,6 @@
     <!-- Materialize CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link href="../../css/dashboard.css" rel="stylesheet">
@@ -38,7 +36,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="my-surverys.html" class="nav-link">
+                        <a href="create-survey.html" class="nav-link">
                             <i class="fas fa-plus-circle nav-icon"></i>
                             <span class="nav-text">Create Surveys</span>
                         </a>
@@ -90,7 +88,7 @@
             </header>
 
             <!-- Analytics Content -->
-            <div class="analytics-main-content">
+            <div class="analytics-content">
                 <!-- Recent Completions Section -->
                 <div class="recent-completions-section">
                     <div class="section-header">
@@ -101,10 +99,10 @@
                     <!-- Search Section -->
                     <div class="search-section">
                         <div class="search-container">
-                            <div class="search-wrapper">
-                                <i class="material-icons search-icon">search</i>
-                                <input type="text" class="search-input browser-default" placeholder="Search surveys..."
-                                    id="searchSurveys" spellcheck="false" autocomplete="off">
+                            <div class="input-field">
+                                <i class="fas fa-search prefix"></i>
+                                <input type="text" id="searchSurveys" placeholder="Search surveys">
+                                <label for="searchSurveys">Search surveys</label>
                             </div>
                         </div>
                     </div>
@@ -152,7 +150,7 @@
                         </div>
                         <h4>No Analytics Data</h4>
                         <p>Create surveys and collect responses to see analytics insights.</p>
-                        <a href="my-surverys.html" class="btn btn-primary">Create Survey</a>
+                        <a href="create-survey.html" class="btn btn-primary">Create Survey</a>
                     </div>
 
                     <!-- Error State -->
