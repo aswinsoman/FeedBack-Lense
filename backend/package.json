@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "testSurveyResponse": "cross-env NODE_ENV=test mocha tests/e2e/surveyResponse.test.js --timeout 20000 --exit",
+    "test:auth": "cross-env NODE_ENV=test mocha \"tests/e2e/auth.test.js\" --timeout 30000 --exit",
     "start": "nodemon server.js"
   },
   "keywords": [],
@@ -14,9 +15,11 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongodb-memory-server": "^10.2.1",
     "mongoose": "^8.18.0",
     "multer": "^1.4.5-lts.1",
     "natural": "^8.1.0",
