@@ -6,7 +6,7 @@
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "test:ui": "playwright test --ui",
+    "test:ui": "playwright test --grep='ui'",
     "test:debug": "playwright test --debug",
     "test:f3": "playwright test e2e/f3",
     "test:f5": "playwright test e2e/f5",
@@ -27,7 +27,7 @@
     "test:chrome": "playwright test --project=chromium",
     "test:firefox": "playwright test --project=firefox",
     "test:safari": "playwright test --project=webkit",
-    "test:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'",
+    "test:mobile": "playwright test --grep='mobile'",
     "test:report": "playwright show-report",
     "test:install": "playwright install",
     "test:install-deps": "playwright install-deps",
@@ -58,13 +58,11 @@
     "test:integration": "playwright test --grep='integration'",
     "test:unit": "playwright test --grep='unit'",
     "test:api": "playwright test --grep='api'",
-    "test:ui": "playwright test --grep='ui'",
     "test:ux": "playwright test --grep='ux'",
     "test:accessibility": "playwright test --grep='accessibility'",
     "test:performance": "playwright test --grep='performance'",
     "test:security": "playwright test --grep='security'",
     "test:compatibility": "playwright test --grep='compatibility'",
-    "test:mobile": "playwright test --grep='mobile'",
     "test:desktop": "playwright test --grep='desktop'",
     "test:tablet": "playwright test --grep='tablet'",
     "test:responsive": "playwright test --grep='responsive'",
@@ -96,7 +94,8 @@
   "author": "Sophie Ngo",
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.40.0",
+    "pdf-parse": "^1.1.1"
   },
   "engines": {
     "node": ">=18.0.0"

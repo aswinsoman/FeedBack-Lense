@@ -1,0 +1,2114 @@
+{
+  "config": {
+    "configFile": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/playwright.config.local.js",
+    "rootDir": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 7
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/results.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.1",
+    "workers": 7,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "f8-pdf-export/pdf-export.spec.js",
+      "file": "f8-pdf-export/pdf-export.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "F8: Analytics PDF Export Functionality",
+          "file": "f8-pdf-export/pdf-export.spec.js",
+          "line": 52,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Phase 1: PDF Export Button and UI",
+              "file": "f8-pdf-export/pdf-export.spec.js",
+              "line": 57,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display PDF export button on analytics page",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 9869,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:26.759Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-16ed4c86434918ac3830",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 59,
+                  "column": 5
+                },
+                {
+                  "title": "should navigate to analytics page successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 9843,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:26.761Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-0d08644b0656b9682355",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 77,
+                  "column": 5
+                },
+                {
+                  "title": "should display PDF export button on analytics page",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 7,
+                          "parallelIndex": 4,
+                          "status": "passed",
+                          "duration": 10167,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:47.962Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-21a6e4c406dcf18f8fbe",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 59,
+                  "column": 5
+                },
+                {
+                  "title": "should navigate to analytics page successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 8,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 10139,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:47.995Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-8efa1830aa548cf31e91",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 77,
+                  "column": 5
+                },
+                {
+                  "title": "should display PDF export button on analytics page",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 14,
+                          "parallelIndex": 6,
+                          "status": "passed",
+                          "duration": 9687,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:10.820Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-a6b6e3f269b6d57880da",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 59,
+                  "column": 5
+                },
+                {
+                  "title": "should navigate to analytics page successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 15,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 9553,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:14.052Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-12f0f0214088c8b9b736",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 77,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "Phase 2: PDF Export Process",
+              "file": "f8-pdf-export/pdf-export.spec.js",
+              "line": 103,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should successfully export PDF when clicking export button",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 11089,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:26.769Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-7c918c8d2bab8bd38a27",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 105,
+                  "column": 5
+                },
+                {
+                  "title": "should display analytics data before export",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 9872,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:26.764Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-c04b2dfac183166e8024",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 145,
+                  "column": 5
+                },
+                {
+                  "title": "should successfully export PDF when clicking export button",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 9,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 11514,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:48.007Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-c4a4ed52183eedc8be61",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 105,
+                  "column": 5
+                },
+                {
+                  "title": "should display analytics data before export",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 6,
+                          "status": "passed",
+                          "duration": 10141,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:48.444Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-b1ab6fb96af7f54665a3",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 145,
+                  "column": 5
+                },
+                {
+                  "title": "should successfully export PDF when clicking export button",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 16,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 10729,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:14.113Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-214eba463a6eb2be65c5",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 105,
+                  "column": 5
+                },
+                {
+                  "title": "should display analytics data before export",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 17,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 9540,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:14.268Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-2c3e8ab1cd867d6dd6fc",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 145,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "Phase 3: PDF Content Validation",
+              "file": "f8-pdf-export/pdf-export.spec.js",
+              "line": 168,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should show analytics charts ready for PDF export",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 4,
+                          "status": "passed",
+                          "duration": 9812,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:26.768Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-a2dfe3896bd6b1d2fb14",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 170,
+                  "column": 5
+                },
+                {
+                  "title": "should display survey metadata for PDF",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 5,
+                          "status": "passed",
+                          "duration": 9821,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:26.761Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-2fca4b5539185367498c",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 189,
+                  "column": 5
+                },
+                {
+                  "title": "should show analytics charts ready for PDF export",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 11,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 10110,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:52.604Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-7858bbff22229dd3aa20",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 170,
+                  "column": 5
+                },
+                {
+                  "title": "should display survey metadata for PDF",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 12,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 10205,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:55.927Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-645d42b5073bd3445199",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 189,
+                  "column": 5
+                },
+                {
+                  "title": "should show analytics charts ready for PDF export",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 18,
+                          "parallelIndex": 5,
+                          "status": "passed",
+                          "duration": 9465,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:15.109Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-cbd2ed3e24f2e6907dfc",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 170,
+                  "column": 5
+                },
+                {
+                  "title": "should display survey metadata for PDF",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 19,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 9608,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:20.076Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-89fc19d0f79a5fc25c0b",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 189,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "Phase 3.5: Acceptance Criteria Validation",
+              "file": "f8-pdf-export/pdf-export.spec.js",
+              "line": 212,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "AC1: PDF export includes all analytics charts and visualizations",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 6,
+                          "parallelIndex": 6,
+                          "status": "passed",
+                          "duration": 11218,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Found 3 chart(s) on analytics page\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:26.759Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-35651c81aa4ced4c738a",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 214,
+                  "column": 5
+                },
+                {
+                  "title": "AC2: Export contains keyword analysis, satisfaction metrics, and trend data",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 4,
+                          "status": "passed",
+                          "duration": 10654,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "PDF contains 1701 characters of content\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:36.920Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-14f6ff6b4af47cb7ba2c",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 240,
+                  "column": 5
+                },
+                {
+                  "title": "AC3: PDF is professionally formatted with survey title, date, and branding",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 5,
+                          "status": "passed",
+                          "duration": 10337,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Survey title: Testing Survey 1\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:36.931Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-461b005b102437f705b7",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 271,
+                  "column": 5
+                },
+                {
+                  "title": "AC5: PDF generation completes within 10 seconds for typical surveys",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 10753,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "PDF export took 1381ms\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:36.955Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-354e7018fbd9c2cee131",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 307,
+                  "column": 5
+                },
+                {
+                  "title": "AC6: Export button is easily accessible from analytics page",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 9397,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:36.977Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-015964338ac379e73775",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 337,
+                  "column": 5
+                },
+                {
+                  "title": "AC7: Generated PDF maintains chart quality and readability",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 10719,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "PDF size: 158324 bytes\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:36.982Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-bcc5b9f86b4125ce3ece",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 358,
+                  "column": 5
+                },
+                {
+                  "title": "AC1: PDF export includes all analytics charts and visualizations",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 13,
+                          "parallelIndex": 5,
+                          "status": "passed",
+                          "duration": 11265,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Found 3 chart(s) on analytics page\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:56.869Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-c621c4aa984177b46796",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 214,
+                  "column": 5
+                },
+                {
+                  "title": "AC2: Export contains keyword analysis, satisfaction metrics, and trend data",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 7,
+                          "parallelIndex": 4,
+                          "status": "passed",
+                          "duration": 11114,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "PDF contains 1701 characters of content\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:58.669Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-f9cd1cdd7e3c3ad37b79",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 240,
+                  "column": 5
+                },
+                {
+                  "title": "AC3: PDF is professionally formatted with survey title, date, and branding",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 8,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 10596,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Survey title: Testing Survey 1\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:58.944Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-58582c685fdc78c72a34",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 271,
+                  "column": 5
+                },
+                {
+                  "title": "AC5: PDF generation completes within 10 seconds for typical surveys",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 6,
+                          "status": "passed",
+                          "duration": 10552,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "PDF export took 1218ms\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:59.632Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-f126f17c345d7a445d14",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 307,
+                  "column": 5
+                },
+                {
+                  "title": "AC6: Export button is easily accessible from analytics page",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 9,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 9350,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:00.641Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-206e39e3df24d16f7e39",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 337,
+                  "column": 5
+                },
+                {
+                  "title": "AC7: Generated PDF maintains chart quality and readability",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 11,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 10572,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "PDF size: 158324 bytes\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:03.144Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-a3d3ecc4f321c9c7ccd4",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 358,
+                  "column": 5
+                },
+                {
+                  "title": "AC1: PDF export includes all analytics charts and visualizations",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 20,
+                          "parallelIndex": 4,
+                          "status": "passed",
+                          "duration": 10935,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Found 3 chart(s) on analytics page\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:20.988Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-f4445d25dbe18ce24687",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 214,
+                  "column": 5
+                },
+                {
+                  "title": "AC2: Export contains keyword analysis, satisfaction metrics, and trend data",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 14,
+                          "parallelIndex": 6,
+                          "status": "passed",
+                          "duration": 10298,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "PDF contains 1701 characters of content\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:20.684Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-1bdd61fa2157443f7648",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 240,
+                  "column": 5
+                },
+                {
+                  "title": "AC3: PDF is professionally formatted with survey title, date, and branding",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 15,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 10793,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Survey title: Testing Survey 1\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:23.755Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-fa6c943ba55972259849",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 271,
+                  "column": 5
+                },
+                {
+                  "title": "AC5: PDF generation completes within 10 seconds for typical surveys",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 17,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 10574,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "PDF export took 1179ms\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:23.982Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-6337a770db7dfd6e95f8",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 307,
+                  "column": 5
+                },
+                {
+                  "title": "AC6: Export button is easily accessible from analytics page",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 18,
+                          "parallelIndex": 5,
+                          "status": "passed",
+                          "duration": 9443,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:24.718Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-3b7395d9cbed595543ee",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 337,
+                  "column": 5
+                },
+                {
+                  "title": "AC7: Generated PDF maintains chart quality and readability",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 16,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 10603,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "PDF size: 158324 bytes\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:24.972Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-1ea2a6c8b2559d155270",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 358,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "Phase 4: Error Handling",
+              "file": "f8-pdf-export/pdf-export.spec.js",
+              "line": 392,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should handle missing survey data gracefully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 6970,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:38.196Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-33b1e70e2e2e1a99bf5c",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 394,
+                  "column": 5
+                },
+                {
+                  "title": "should load analytics page without crashing",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 6,
+                          "parallelIndex": 6,
+                          "status": "passed",
+                          "duration": 5906,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:38.325Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-481ac77c6867f6061a5d",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 409,
+                  "column": 5
+                },
+                {
+                  "title": "should handle missing survey data gracefully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 12,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 6940,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:06.561Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-8a12d6e06c30da137b6b",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 394,
+                  "column": 5
+                },
+                {
+                  "title": "should load analytics page without crashing",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 13,
+                          "parallelIndex": 5,
+                          "status": "passed",
+                          "duration": 6022,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:08.556Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-2bba06fec060fdba6182",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 409,
+                  "column": 5
+                },
+                {
+                  "title": "should handle missing survey data gracefully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 19,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 7325,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:29.830Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-37287f420e9f424b2b20",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 394,
+                  "column": 5
+                },
+                {
+                  "title": "should load analytics page without crashing",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 14,
+                          "parallelIndex": 6,
+                          "status": "passed",
+                          "duration": 6315,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:30.990Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-a4fadde0ef73473a391a",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 409,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "Phase 5: Performance Testing",
+              "file": "f8-pdf-export/pdf-export.spec.js",
+              "line": 426,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should load analytics page within acceptable time",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 6,
+                          "parallelIndex": 6,
+                          "status": "passed",
+                          "duration": 3931,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:44.237Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-70b7de04cb13ffd592b6",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 428,
+                  "column": 5
+                },
+                {
+                  "title": "should export PDF within reasonable time",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 2,
+                          "status": "passed",
+                          "duration": 10461,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:45.170Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-a8e43366f5eabcdbaea0",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 443,
+                  "column": 5
+                },
+                {
+                  "title": "should load analytics page within acceptable time",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 8,
+                          "parallelIndex": 3,
+                          "status": "passed",
+                          "duration": 4012,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:09.545Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-441e4f62f4717b7a41cf",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 428,
+                  "column": 5
+                },
+                {
+                  "title": "should export PDF within reasonable time",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 7,
+                          "parallelIndex": 4,
+                          "status": "passed",
+                          "duration": 10528,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:09.790Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-efed8ac3bcee2ae67302",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 443,
+                  "column": 5
+                },
+                {
+                  "title": "should load analytics page within acceptable time",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 20,
+                          "parallelIndex": 4,
+                          "status": "passed",
+                          "duration": 4026,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:32.068Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-5dfb6eb61d8c4bda47ef",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 428,
+                  "column": 5
+                },
+                {
+                  "title": "should export PDF within reasonable time",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 18,
+                          "parallelIndex": 5,
+                          "status": "passed",
+                          "duration": 10323,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:34.169Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-cf4c4e1f8f5f33087c00",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 443,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "Phase 6: Browser Compatibility",
+              "file": "f8-pdf-export/pdf-export.spec.js",
+              "line": 479,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should work in Chromium browser",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 5947,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:46.382Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-c945afaabb733c43401f",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 481,
+                  "column": 5
+                },
+                {
+                  "title": "should successfully export PDF in current browser",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 5,
+                          "status": "passed",
+                          "duration": 9300,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:11:47.276Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-898ef1f60d55c8713e0f",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 498,
+                  "column": 5
+                },
+                {
+                  "title": "should work in Chromium browser",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/e2e/f8-pdf-export/pdf-export.spec.js",
+                            "line": 482,
+                            "column": 44
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 9,
+                          "parallelIndex": 1,
+                          "status": "skipped",
+                          "duration": 171,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:09.997Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/e2e/f8-pdf-export/pdf-export.spec.js",
+                                "line": 482,
+                                "column": 44
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-b798d3d209a266af3c5c",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 481,
+                  "column": 5
+                },
+                {
+                  "title": "should successfully export PDF in current browser",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 9,
+                          "parallelIndex": 1,
+                          "status": "passed",
+                          "duration": 9336,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:10.175Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-249b0de1bb06ddfd14b5",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 498,
+                  "column": 5
+                },
+                {
+                  "title": "should work in Chromium browser",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/e2e/f8-pdf-export/pdf-export.spec.js",
+                            "line": 482,
+                            "column": 44
+                          }
+                        }
+                      ],
+                      "expectedStatus": "skipped",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 15,
+                          "parallelIndex": 2,
+                          "status": "skipped",
+                          "duration": 135,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:34.555Z",
+                          "annotations": [
+                            {
+                              "type": "skip",
+                              "location": {
+                                "file": "/Users/sophiengo1811/Documents/SIT725/CodeFL/FL/FeedBack-Lense/suong-ngo-tests/e2e/f8-pdf-export/pdf-export.spec.js",
+                                "line": 482,
+                                "column": 44
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-732f28989b9bd4e9041b",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 481,
+                  "column": 5
+                },
+                {
+                  "title": "should successfully export PDF in current browser",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 17,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 9247,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-30T11:12:34.563Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "e9ba3c09634329e180dc-8ccf998a0d8b61522753",
+                  "file": "f8-pdf-export/pdf-export.spec.js",
+                  "line": 498,
+                  "column": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-09-30T11:11:26.418Z",
+    "duration": 78111.57299999999,
+    "expected": 52,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

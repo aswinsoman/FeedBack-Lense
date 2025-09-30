@@ -14,14 +14,14 @@ const mockUsers = {
     role: 'creator'
   },
   recipient: {
-    email: 'recipient@example.com',
-    password: 'password123',
+    email: 'Suongngo11@gmail.com',
+    password: 'Feedbacklense@1234',
     name: 'Jane Smith',
     role: 'recipient'
   },
   admin: {
-    email: 'admin@example.com',
-    password: 'admin123',
+    email: 'thithungo@gmail.com',
+    password: 'Feedbacklense@1234',
     name: 'Admin User',
     role: 'admin'
   }

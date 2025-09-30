@@ -289,7 +289,7 @@ test.describe('F3: Survey Creation with CSV Upload', () => {
     });
 
     test.skip('should handle file upload errors', async ({ page }) => {
-      // TODO: Implement file upload error handling
     });
   });
 });
+
