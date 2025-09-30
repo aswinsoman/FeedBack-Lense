@@ -1,0 +1,188 @@
+<testsuites id="" name="" tests="54" failures="0" skipped="2" errors="0" time="78.11157299999999">
+<testsuite name="f8-pdf-export/pdf-export.spec.js" timestamp="2025-09-30T11:11:26.432Z" hostname="chromium" tests="18" failures="0" skipped="0" time="165.899" errors="0">
+<testcase name="F8: Analytics PDF Export Functionality › Phase 1: PDF Export Button and UI › should display PDF export button on analytics page" classname="f8-pdf-export/pdf-export.spec.js" time="9.869">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 1: PDF Export Button and UI › should navigate to analytics page successfully" classname="f8-pdf-export/pdf-export.spec.js" time="9.843">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 2: PDF Export Process › should successfully export PDF when clicking export button" classname="f8-pdf-export/pdf-export.spec.js" time="11.089">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 2: PDF Export Process › should display analytics data before export" classname="f8-pdf-export/pdf-export.spec.js" time="9.872">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3: PDF Content Validation › should show analytics charts ready for PDF export" classname="f8-pdf-export/pdf-export.spec.js" time="9.812">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3: PDF Content Validation › should display survey metadata for PDF" classname="f8-pdf-export/pdf-export.spec.js" time="9.821">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC1: PDF export includes all analytics charts and visualizations" classname="f8-pdf-export/pdf-export.spec.js" time="11.218">
+<system-out>
+<![CDATA[Found 3 chart(s) on analytics page
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC2: Export contains keyword analysis, satisfaction metrics, and trend data" classname="f8-pdf-export/pdf-export.spec.js" time="10.654">
+<system-out>
+<![CDATA[PDF contains 1701 characters of content
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC3: PDF is professionally formatted with survey title, date, and branding" classname="f8-pdf-export/pdf-export.spec.js" time="10.337">
+<system-out>
+<![CDATA[Survey title: Testing Survey 1
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC5: PDF generation completes within 10 seconds for typical surveys" classname="f8-pdf-export/pdf-export.spec.js" time="10.753">
+<system-out>
+<![CDATA[PDF export took 1381ms
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC6: Export button is easily accessible from analytics page" classname="f8-pdf-export/pdf-export.spec.js" time="9.397">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC7: Generated PDF maintains chart quality and readability" classname="f8-pdf-export/pdf-export.spec.js" time="10.719">
+<system-out>
+<![CDATA[PDF size: 158324 bytes
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 4: Error Handling › should handle missing survey data gracefully" classname="f8-pdf-export/pdf-export.spec.js" time="6.97">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 4: Error Handling › should load analytics page without crashing" classname="f8-pdf-export/pdf-export.spec.js" time="5.906">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 5: Performance Testing › should load analytics page within acceptable time" classname="f8-pdf-export/pdf-export.spec.js" time="3.931">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 5: Performance Testing › should export PDF within reasonable time" classname="f8-pdf-export/pdf-export.spec.js" time="10.461">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 6: Browser Compatibility › should work in Chromium browser" classname="f8-pdf-export/pdf-export.spec.js" time="5.947">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 6: Browser Compatibility › should successfully export PDF in current browser" classname="f8-pdf-export/pdf-export.spec.js" time="9.3">
+</testcase>
+</testsuite>
+<testsuite name="f8-pdf-export/pdf-export.spec.js" timestamp="2025-09-30T11:11:26.432Z" hostname="firefox" tests="18" failures="0" skipped="1" time="162.734" errors="0">
+<testcase name="F8: Analytics PDF Export Functionality › Phase 1: PDF Export Button and UI › should display PDF export button on analytics page" classname="f8-pdf-export/pdf-export.spec.js" time="10.167">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 1: PDF Export Button and UI › should navigate to analytics page successfully" classname="f8-pdf-export/pdf-export.spec.js" time="10.139">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 2: PDF Export Process › should successfully export PDF when clicking export button" classname="f8-pdf-export/pdf-export.spec.js" time="11.514">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 2: PDF Export Process › should display analytics data before export" classname="f8-pdf-export/pdf-export.spec.js" time="10.141">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3: PDF Content Validation › should show analytics charts ready for PDF export" classname="f8-pdf-export/pdf-export.spec.js" time="10.11">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3: PDF Content Validation › should display survey metadata for PDF" classname="f8-pdf-export/pdf-export.spec.js" time="10.205">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC1: PDF export includes all analytics charts and visualizations" classname="f8-pdf-export/pdf-export.spec.js" time="11.265">
+<system-out>
+<![CDATA[Found 3 chart(s) on analytics page
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC2: Export contains keyword analysis, satisfaction metrics, and trend data" classname="f8-pdf-export/pdf-export.spec.js" time="11.114">
+<system-out>
+<![CDATA[PDF contains 1701 characters of content
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC3: PDF is professionally formatted with survey title, date, and branding" classname="f8-pdf-export/pdf-export.spec.js" time="10.596">
+<system-out>
+<![CDATA[Survey title: Testing Survey 1
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC5: PDF generation completes within 10 seconds for typical surveys" classname="f8-pdf-export/pdf-export.spec.js" time="10.552">
+<system-out>
+<![CDATA[PDF export took 1218ms
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC6: Export button is easily accessible from analytics page" classname="f8-pdf-export/pdf-export.spec.js" time="9.35">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC7: Generated PDF maintains chart quality and readability" classname="f8-pdf-export/pdf-export.spec.js" time="10.572">
+<system-out>
+<![CDATA[PDF size: 158324 bytes
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 4: Error Handling › should handle missing survey data gracefully" classname="f8-pdf-export/pdf-export.spec.js" time="6.94">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 4: Error Handling › should load analytics page without crashing" classname="f8-pdf-export/pdf-export.spec.js" time="6.022">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 5: Performance Testing › should load analytics page within acceptable time" classname="f8-pdf-export/pdf-export.spec.js" time="4.012">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 5: Performance Testing › should export PDF within reasonable time" classname="f8-pdf-export/pdf-export.spec.js" time="10.528">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 6: Browser Compatibility › should work in Chromium browser" classname="f8-pdf-export/pdf-export.spec.js" time="0.171">
+<properties>
+<property name="skip" value="">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 6: Browser Compatibility › should successfully export PDF in current browser" classname="f8-pdf-export/pdf-export.spec.js" time="9.336">
+</testcase>
+</testsuite>
+<testsuite name="f8-pdf-export/pdf-export.spec.js" timestamp="2025-09-30T11:11:26.432Z" hostname="webkit" tests="18" failures="0" skipped="1" time="158.599" errors="0">
+<testcase name="F8: Analytics PDF Export Functionality › Phase 1: PDF Export Button and UI › should display PDF export button on analytics page" classname="f8-pdf-export/pdf-export.spec.js" time="9.687">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 1: PDF Export Button and UI › should navigate to analytics page successfully" classname="f8-pdf-export/pdf-export.spec.js" time="9.553">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 2: PDF Export Process › should successfully export PDF when clicking export button" classname="f8-pdf-export/pdf-export.spec.js" time="10.729">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 2: PDF Export Process › should display analytics data before export" classname="f8-pdf-export/pdf-export.spec.js" time="9.54">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3: PDF Content Validation › should show analytics charts ready for PDF export" classname="f8-pdf-export/pdf-export.spec.js" time="9.465">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3: PDF Content Validation › should display survey metadata for PDF" classname="f8-pdf-export/pdf-export.spec.js" time="9.608">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC1: PDF export includes all analytics charts and visualizations" classname="f8-pdf-export/pdf-export.spec.js" time="10.935">
+<system-out>
+<![CDATA[Found 3 chart(s) on analytics page
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC2: Export contains keyword analysis, satisfaction metrics, and trend data" classname="f8-pdf-export/pdf-export.spec.js" time="10.298">
+<system-out>
+<![CDATA[PDF contains 1701 characters of content
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC3: PDF is professionally formatted with survey title, date, and branding" classname="f8-pdf-export/pdf-export.spec.js" time="10.793">
+<system-out>
+<![CDATA[Survey title: Testing Survey 1
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC5: PDF generation completes within 10 seconds for typical surveys" classname="f8-pdf-export/pdf-export.spec.js" time="10.574">
+<system-out>
+<![CDATA[PDF export took 1179ms
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC6: Export button is easily accessible from analytics page" classname="f8-pdf-export/pdf-export.spec.js" time="9.443">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 3.5: Acceptance Criteria Validation › AC7: Generated PDF maintains chart quality and readability" classname="f8-pdf-export/pdf-export.spec.js" time="10.603">
+<system-out>
+<![CDATA[PDF size: 158324 bytes
+]]>
+</system-out>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 4: Error Handling › should handle missing survey data gracefully" classname="f8-pdf-export/pdf-export.spec.js" time="7.325">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 4: Error Handling › should load analytics page without crashing" classname="f8-pdf-export/pdf-export.spec.js" time="6.315">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 5: Performance Testing › should load analytics page within acceptable time" classname="f8-pdf-export/pdf-export.spec.js" time="4.026">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 5: Performance Testing › should export PDF within reasonable time" classname="f8-pdf-export/pdf-export.spec.js" time="10.323">
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 6: Browser Compatibility › should work in Chromium browser" classname="f8-pdf-export/pdf-export.spec.js" time="0.135">
+<properties>
+<property name="skip" value="">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="F8: Analytics PDF Export Functionality › Phase 6: Browser Compatibility › should successfully export PDF in current browser" classname="f8-pdf-export/pdf-export.spec.js" time="9.247">
+</testcase>
+</testsuite>
+</testsuites>
