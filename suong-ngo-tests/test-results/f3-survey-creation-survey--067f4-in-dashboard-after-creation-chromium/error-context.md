@@ -1,0 +1,129 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e5]:
+      - img "FeedbackLens Logo" [ref=e6]
+      - generic [ref=e7]:
+        - generic [ref=e8]: FeedbackLens
+        - generic [ref=e9]: TECHNOLOGY
+    - navigation [ref=e10]:
+      - list:
+        - listitem [ref=e11]:
+          - link " Dashboard" [ref=e12] [cursor=pointer]:
+            - /url: index.html
+            - generic [ref=e13] [cursor=pointer]: 
+            - generic [ref=e14] [cursor=pointer]: Dashboard
+        - listitem [ref=e15]:
+          - link " Create Surveys" [ref=e16] [cursor=pointer]:
+            - /url: create-survey.html
+            - generic [ref=e17] [cursor=pointer]: 
+            - generic [ref=e18] [cursor=pointer]: Create Surveys
+        - listitem [ref=e19]:
+          - link " Invitations" [ref=e20] [cursor=pointer]:
+            - /url: invitation.html
+            - generic [ref=e21] [cursor=pointer]: 
+            - generic [ref=e22] [cursor=pointer]: Invitations
+        - listitem [ref=e23]:
+          - link " Analytics" [ref=e24] [cursor=pointer]:
+            - /url: analytics.html
+            - generic [ref=e25] [cursor=pointer]: 
+            - generic [ref=e26] [cursor=pointer]: Analytics
+  - main [ref=e27]:
+    - generic [ref=e29]:
+      - heading "Dashboard" [level=1] [ref=e30]
+      - generic [ref=e32]:
+        - generic [ref=e33] [cursor=pointer]: 
+        - generic [ref=e34] [cursor=pointer]:
+          - img "User Avatar" [ref=e35] [cursor=pointer]
+          - generic [ref=e36] [cursor=pointer]:
+            - generic [ref=e37] [cursor=pointer]: Aswin1
+            - generic [ref=e38] [cursor=pointer]: User
+          - generic [ref=e39] [cursor=pointer]: 
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - heading "Welcome back!" [level=2] [ref=e42]
+        - paragraph [ref=e43]: Here's what's happening with your surveys today.
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e47]: 
+          - generic [ref=e48]:
+            - heading "0" [level=3] [ref=e49]
+            - paragraph [ref=e50]: Total Surveys
+        - generic [ref=e51]:
+          - generic [ref=e53]: 
+          - generic [ref=e54]:
+            - heading "0" [level=3] [ref=e55]
+            - paragraph [ref=e56]: Total Responses
+        - generic [ref=e57]:
+          - generic [ref=e59]: 
+          - generic [ref=e60]:
+            - heading "0" [level=3] [ref=e61]
+            - paragraph [ref=e62]: Active Surveys
+        - generic [ref=e63]:
+          - generic [ref=e65]: 
+          - generic [ref=e66]:
+            - heading "0%" [level=3] [ref=e67]
+            - paragraph [ref=e68]: Avg Response Rate
+      - generic [ref=e69]:
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - heading "Created Surveys" [level=3] [ref=e73]
+            - button "+ Create New" [ref=e75] [cursor=pointer]:
+              - generic [ref=e76] [cursor=pointer]: +
+              - text: Create New
+          - generic [ref=e78]:
+            - generic [ref=e80]: 
+            - heading "No surveys yet" [level=4] [ref=e81]
+            - paragraph [ref=e82]: Create your first survey to get started with collecting feedback.
+            - link "Create Survey" [ref=e83] [cursor=pointer]:
+              - /url: create-survey.html
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - generic [ref=e86]:
+              - heading "Received Invitations" [level=3] [ref=e87]
+              - button " View more" [ref=e88] [cursor=pointer]:
+                - generic [ref=e89] [cursor=pointer]: 
+                - text: View more
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - generic [ref=e93]:
+                  - generic [ref=e94]: Official Survey Demo - Course Satisfaction
+                  - generic [ref=e95]: "From: Sophie Ngo"
+                - button "Take Survey" [ref=e96] [cursor=pointer]
+              - generic [ref=e97]: "Due: Oct 22"
+          - generic [ref=e98]:
+            - generic [ref=e99]:
+              - heading "Analytics Overview" [level=3] [ref=e100]
+              - link "View Full Analytics" [ref=e101] [cursor=pointer]:
+                - /url: analytics.html
+            - generic [ref=e102]:
+              - generic [ref=e103]:
+                - heading "Response Trends" [level=5] [ref=e104]
+                - generic [ref=e114]:
+                  - generic [ref=e115]: Mon
+                  - generic [ref=e116]: Tue
+                  - generic [ref=e117]: Wed
+                  - generic [ref=e118]: Thu
+                  - generic [ref=e119]: Fri
+                  - generic [ref=e120]: Sat
+                  - generic [ref=e121]: Sun
+              - generic [ref=e122]:
+                - heading "Recent Activity" [level=5] [ref=e123]
+                - generic [ref=e124]:
+                  - generic [ref=e126]: 
+                  - generic [ref=e127]:
+                    - generic [ref=e128]: New response to Customer Satisfaction Q4
+                    - generic [ref=e129]: 2 min ago
+                - generic [ref=e130]:
+                  - generic [ref=e132]: 
+                  - generic [ref=e133]:
+                    - generic [ref=e134]: Survey invitation sent to 15 participants
+                    - generic [ref=e135]: 1 hour ago
+                - generic [ref=e136]:
+                  - generic [ref=e138]: 
+                  - generic [ref=e139]:
+                    - generic [ref=e140]: Product Feedback Survey updated
+                    - generic [ref=e141]: 3 hours ago
+```

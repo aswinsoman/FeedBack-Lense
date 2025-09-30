@@ -1,0 +1,132 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e5]:
+      - img "FeedbackLens Logo" [ref=e6]
+      - generic [ref=e7]:
+        - generic [ref=e8]: FeedbackLens
+        - generic [ref=e9]: TECHNOLOGY
+    - navigation [ref=e10]:
+      - list:
+        - listitem [ref=e11]:
+          - link " Dashboard" [ref=e12] [cursor=pointer]:
+            - /url: index.html
+            - generic [ref=e13] [cursor=pointer]: 
+            - generic [ref=e14] [cursor=pointer]: Dashboard
+        - listitem [ref=e15]:
+          - link " Create Surveys" [ref=e16] [cursor=pointer]:
+            - /url: create-survey.html
+            - generic [ref=e17] [cursor=pointer]: 
+            - generic [ref=e18] [cursor=pointer]: Create Surveys
+        - listitem [ref=e19]:
+          - link " Invitations" [ref=e20] [cursor=pointer]:
+            - /url: invitation.html
+            - generic [ref=e21] [cursor=pointer]: 
+            - generic [ref=e22] [cursor=pointer]: Invitations
+        - listitem [ref=e23]:
+          - link " Analytics" [ref=e24] [cursor=pointer]:
+            - /url: analytics.html
+            - generic [ref=e25] [cursor=pointer]: 
+            - generic [ref=e26] [cursor=pointer]: Analytics
+  - main [ref=e27]:
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - button "" [ref=e31] [cursor=pointer]:
+          - generic [ref=e32] [cursor=pointer]: 
+        - heading "Create Survey - Preview Questions" [level=1] [ref=e33]
+      - generic [ref=e35]:
+        - generic [ref=e36] [cursor=pointer]: 
+        - generic [ref=e37] [cursor=pointer]:
+          - img "User Avatar" [ref=e38] [cursor=pointer]
+          - generic [ref=e40] [cursor=pointer]: Aswin1
+          - generic [ref=e41] [cursor=pointer]: 
+    - generic [ref=e42]:
+      - paragraph [ref=e44]: Use this page to create your surveys, the smart and simple way.
+      - text:  • • • •
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]: 
+          - generic [ref=e48]:
+            - generic [ref=e49]: 
+            - text: Your Survey
+            - strong [ref=e50]: "'sample_survey_format'"
+            - text: uploaded successfully!
+            - generic [ref=e51]: 4 questions processed
+        - generic [ref=e52]:
+          - heading "Questions Preview (4 questions)" [level=4] [ref=e53]
+          - table [ref=e55]:
+            - rowgroup [ref=e56]:
+              - row "Question ID Question Text" [ref=e57]:
+                - cell "Question ID" [ref=e58]
+                - cell "Question Text" [ref=e59]
+            - rowgroup [ref=e60]:
+              - 'row "#1 Q1 How satisfied are you with the course overall?  Multiple Choice Options: Very Satisfied, Satisfied, Dissatisfied, Very Dissatisfied" [ref=e61]':
+                - cell "#1 Q1" [ref=e62]:
+                  - generic [ref=e63]: "#1"
+                  - strong [ref=e64]: Q1
+                - 'cell "How satisfied are you with the course overall?  Multiple Choice Options: Very Satisfied, Satisfied, Dissatisfied, Very Dissatisfied" [ref=e65]':
+                  - generic [ref=e66]: How satisfied are you with the course overall?
+                  - generic [ref=e67]:
+                    - generic [ref=e68]:
+                      - generic [ref=e69]: 
+                      - text: Multiple Choice
+                    - generic [ref=e70]: "Options: Very Satisfied, Satisfied, Dissatisfied, Very Dissatisfied"
+              - row "#2 Q2 Please provide any feedback to improve the course.  Text" [ref=e71]:
+                - cell "#2 Q2" [ref=e72]:
+                  - generic [ref=e73]: "#2"
+                  - strong [ref=e74]: Q2
+                - cell "Please provide any feedback to improve the course.  Text" [ref=e75]:
+                  - generic [ref=e76]: Please provide any feedback to improve the course.
+                  - generic [ref=e78]:
+                    - generic [ref=e79]: 
+                    - text: Text
+              - 'row "#3 Q3 Which teaching methods did you find most helpful?  Multiple Choice Options: Lectures, Tutorials, Group Projects, Online Materials" [ref=e80]':
+                - cell "#3 Q3" [ref=e81]:
+                  - generic [ref=e82]: "#3"
+                  - strong [ref=e83]: Q3
+                - 'cell "Which teaching methods did you find most helpful?  Multiple Choice Options: Lectures, Tutorials, Group Projects, Online Materials" [ref=e84]':
+                  - generic [ref=e85]: Which teaching methods did you find most helpful?
+                  - generic [ref=e86]:
+                    - generic [ref=e87]:
+                      - generic [ref=e88]: 
+                      - text: Multiple Choice
+                    - generic [ref=e89]: "Options: Lectures, Tutorials, Group Projects, Online Materials"
+              - 'row "#4 Q4 Would you recommend this course to a friend?  Multiple Choice Options: Yes, No, Not Sure" [ref=e90]':
+                - cell "#4 Q4" [ref=e91]:
+                  - generic [ref=e92]: "#4"
+                  - strong [ref=e93]: Q4
+                - 'cell "Would you recommend this course to a friend?  Multiple Choice Options: Yes, No, Not Sure" [ref=e94]':
+                  - generic [ref=e95]: Would you recommend this course to a friend?
+                  - generic [ref=e96]:
+                    - generic [ref=e97]:
+                      - generic [ref=e98]: 
+                      - text: Multiple Choice
+                    - generic [ref=e99]: "Options: Yes, No, Not Sure"
+          - generic [ref=e100]:
+            - heading " Question Type Distribution" [level=5] [ref=e102]:
+              - generic [ref=e103]: 
+              - text: Question Type Distribution
+            - generic [ref=e104]:
+              - generic [ref=e105]:
+                - generic [ref=e106]: "Text Questions:"
+                - generic [ref=e107]: "1"
+              - generic [ref=e108]:
+                - generic [ref=e109]: "Likert Scale:"
+                - generic [ref=e110]: "0"
+              - generic [ref=e111]:
+                - generic [ref=e112]: "Multiple Choice:"
+                - generic [ref=e113]: "3"
+              - generic [ref=e114]:
+                - generic [ref=e115]: "Total Questions:"
+                - generic [ref=e116]: "4"
+        - generic [ref=e117]:
+          - button " Replace" [ref=e118] [cursor=pointer]:
+            - generic [ref=e119] [cursor=pointer]: 
+            - text: Replace
+          - generic [ref=e120]:
+            - button "Back" [ref=e121] [cursor=pointer]
+            - button "Next" [ref=e122] [cursor=pointer]
+      - text:  
+```
