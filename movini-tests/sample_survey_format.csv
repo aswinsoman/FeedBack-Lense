@@ -1,0 +1,5 @@
+questionId,questionText,type,options
+Q1,How satisfied are you with our service?,likert,
+Q2,What features do you use?,multiple-choice,"FeatureA;FeatureB;FeatureC"
+Q3,Any additional comments?,text,
+
