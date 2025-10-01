@@ -1,0 +1,21 @@
+{
+  "name": "movini-tests",
+  "version": "1.0.0",
+  "main": "auth.test.js",
+  "scripts": {
+    "test": "mocha --timeout 30000 \"**/*.test.js\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "mocha": "^11.7.3",
+    "mongodb-memory-server": "^10.2.1",
+    "supertest": "^7.1.4"
+  },
+  "dependencies": {
+    "chai": "^4.5.0",
+    "mongoose": "^8.18.3"
+  }
+}
