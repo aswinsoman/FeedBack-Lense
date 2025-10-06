@@ -117,7 +117,16 @@ async function analyzeSurvey(surveyId, opts = {}) {
       const tokens = normalizeTokens(answer, extraStopwords);
 
       // sentiment
-      const s = analyzer.getSentiment(tokens);
+      const negativeWords = ['hate', 'terrible', 'awful', 'horrible', 'disgusting', 'worst', 'bad', 'pathetic', 'useless', 'disaster', 'poor'];
+      const positiveWords = ['good', 'great', 'excellent', 'love', 'amazing', 'wonderful', 'satisfied'];
+
+      let negCount = 0, posCount = 0;
+      for (const token of tokens) {
+        if (negativeWords.includes(token)) negCount++;
+        if (positiveWords.includes(token)) posCount++;
+      }
+
+      const s = negCount > 0 ? -1 : (posCount > 0 ? 1 : 0);
       totalScore += s;
       totalTokens += Math.max(tokens.length, 1);
       answerCount += 1;
@@ -151,7 +160,7 @@ async function analyzeSurvey(surveyId, opts = {}) {
 
   // Mild normalization: divide by sqrt(totalTokens)
   const norm = totalTokens > 0 ? Math.sqrt(totalTokens) : 1;
-  const overall = answerCount > 0 ? (totalScore / norm) : 0;
+  const overall = answerCount > 0 ? (totalScore / answerCount) : 0;
 
   const analysis = {
     topKeywords: keywordArray.slice(0, topN),
